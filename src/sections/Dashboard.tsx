@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import Navbar from '../components/Navbar';
 import DashboardHero from './DashboardHero';
 import StatsSection from './StatsSection';
+import MarqueeStrip from '../components/MarqueeStrip';
 import AboutSection from './AboutSection';
 import TracksSection from './TracksSection';
 import TimelineSection from './TimelineSection';
@@ -58,6 +59,9 @@ export const Dashboard: React.FC = () => {
 
       {/* 2. Stats Section (Animated number counters) */}
       <StatsSection />
+
+      {/* Kinetic Typography Marquee Strip */}
+      <MarqueeStrip />
 
       {/* 3. About Section (The Codex & Club info) */}
       <AboutSection />

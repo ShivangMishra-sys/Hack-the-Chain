@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { siteContent } from '../content';
+import ScrambleText from '../components/ScrambleText';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -101,12 +102,30 @@ export const RegisterCtaSection: React.FC = () => {
             letterSpacing: '-0.04em',
             lineHeight: 0.98,
             color: '#f2f2f2',
-            maxWidth: '16ch',
+            maxWidth: '18ch',
             marginBottom: '2rem',
             textTransform: 'uppercase',
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'center',
+            gap: '0.6em',
+            flexWrap: 'wrap',
           }}
         >
-          {siteContent.cta.heading}
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75em',
+              fontWeight: 500,
+              letterSpacing: '-0.02em',
+              color: 'rgba(255, 255, 255, 0.22)',
+              userSelect: 'none',
+            }}
+            aria-hidden="true"
+          >
+            07
+          </span>
+          <ScrambleText text={siteContent.cta.heading} />
         </h2>
 
         <p

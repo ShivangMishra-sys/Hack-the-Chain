@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { siteContent } from '../content';
+import ScrambleText from '../components/ScrambleText';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -93,9 +94,26 @@ export const TracksSection: React.FC = () => {
             lineHeight: 1.05,
             color: '#f2f2f2',
             marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: '0.6em',
+            flexWrap: 'wrap',
           }}
         >
-          FOUR DOMAINS. ZERO LIMITS.
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.8em',
+              fontWeight: 500,
+              letterSpacing: '-0.02em',
+              color: 'rgba(255, 255, 255, 0.22)',
+              userSelect: 'none',
+            }}
+            aria-hidden="true"
+          >
+            02
+          </span>
+          <ScrambleText text="FOUR DOMAINS. ZERO LIMITS." />
         </h2>
 
         <p

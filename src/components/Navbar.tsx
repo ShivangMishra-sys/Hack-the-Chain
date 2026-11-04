@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { siteContent } from '../content';
+import ScrambleText from './ScrambleText';
 
 export const Navbar: React.FC = () => {
   const scrollY = useAppStore((state) => state.scrollY);
@@ -150,7 +151,7 @@ export const Navbar: React.FC = () => {
                     }}
                   />
                 )}
-                {link.label}
+                <ScrambleText text={link.label} triggerOnHover={true} triggerOnScroll={false} />
               </a>
             );
           })}

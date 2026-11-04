@@ -181,6 +181,12 @@ code, kbd, samp, .mono {
   }
 }
 
+/* ── Kinetic Typography & Scramble ───────────────── */
+.scramble-text {
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+}
+
 /* ── Dashboard Styles ────────────────────────────── */
 .glass-card {
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;

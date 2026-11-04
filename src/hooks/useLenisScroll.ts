@@ -2,6 +2,12 @@ import { useEffect, useRef } from 'react';
 import Lenis from 'lenis';
 import { useAppStore } from '../store/useAppStore';
 
+let activeLenisVelocity = 0;
+
+export function getLenisVelocity(): number {
+  return activeLenisVelocity;
+}
+
 export function useLenisScroll() {
   const phase = useAppStore((state) => state.phase);
   const setScrollY = useAppStore((state) => state.setScrollY);
@@ -15,6 +21,7 @@ export function useLenisScroll() {
       if (lenisRef.current) {
         lenisRef.current.destroy();
         lenisRef.current = null;
+        activeLenisVelocity = 0;
       }
       return;
     }
@@ -30,13 +37,19 @@ export function useLenisScroll() {
     });
     lenisRef.current = lenis;
 
-    lenis.on('scroll', (e: { scroll: number }) => {
+    lenis.on('scroll', (e: { scroll: number; velocity?: number }) => {
       setScrollY(e.scroll);
+      if (typeof e.velocity === 'number') {
+        activeLenisVelocity = e.velocity;
+      }
     });
 
     let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
+      if (typeof (lenis as any).velocity === 'number') {
+        activeLenisVelocity = (lenis as any).velocity;
+      }
       rafId = requestAnimationFrame(raf);
     }
     rafId = requestAnimationFrame(raf);
@@ -45,6 +58,7 @@ export function useLenisScroll() {
       cancelAnimationFrame(rafId);
       lenis.destroy();
       lenisRef.current = null;
+      activeLenisVelocity = 0;
     };
   }, [phase, setScrollY]);
 
@@ -52,4 +66,5 @@ export function useLenisScroll() {
 }
 
 export default useLenisScroll;
+
 
