@@ -3,12 +3,16 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { siteContent } from '../content';
 import ScrambleText from '../components/ScrambleText';
+import useCardEffects from '../hooks/useCardEffects';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const TimelineSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
+
+  // 3D tilt and cursor spotlight
+  useCardEffects(sectionRef, '.timeline-item .glass-card');
 
   useEffect(() => {
     if (!sectionRef.current) return;

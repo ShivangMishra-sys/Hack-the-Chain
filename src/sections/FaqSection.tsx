@@ -3,12 +3,16 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { siteContent } from '../content';
 import ScrambleText from '../components/ScrambleText';
+import useCardEffects from '../hooks/useCardEffects';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const FaqSection: React.FC = () => {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const sectionRef = useRef<HTMLElement>(null);
+
+  // 3D tilt and cursor spotlight
+  useCardEffects(sectionRef, '.faq-item');
 
   useEffect(() => {
     if (!sectionRef.current) return;

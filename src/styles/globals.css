@@ -189,14 +189,73 @@ code, kbd, samp, .mono {
 
 /* ── Dashboard Styles ────────────────────────────── */
 .glass-card {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+/* Cursor spotlight: soft radial gradient highlight (white at ~8% opacity) on background */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    550px circle at var(--mx, -1000px) var(--my, -1000px),
+    rgba(255, 255, 255, 0.08) 0%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Cursor spotlight: brighter gradient on card border */
+.glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    360px circle at var(--mx, -1000px) var(--my, -1000px),
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.12) 40%,
+    transparent 70%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.glass-card:hover::before,
+.glass-card:hover::after {
+  opacity: 1;
 }
 
 .glass-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(255, 255, 255, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
   background-color: rgba(255, 255, 255, 0.065) !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Keep card child contents elevated above spotlight pseudo-elements */
+.glass-card > * {
+  position: relative;
+  z-index: 3;
+}
+
+/* Disable spotlight on touch and prefers-reduced-motion */
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .glass-card::before,
+  .glass-card::after {
+    display: none !important;
+  }
 }
 
 /* Accessibility & Focus States */

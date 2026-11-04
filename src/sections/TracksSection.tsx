@@ -3,11 +3,15 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { siteContent } from '../content';
 import ScrambleText from '../components/ScrambleText';
+import useCardEffects from '../hooks/useCardEffects';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const TracksSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
+
+  // 3D tilt and cursor spotlight
+  useCardEffects(sectionRef, '.track-card');
 
   useEffect(() => {
     if (!sectionRef.current) return;

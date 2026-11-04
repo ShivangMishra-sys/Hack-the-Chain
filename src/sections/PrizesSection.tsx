@@ -3,11 +3,15 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { siteContent } from '../content';
 import ScrambleText from '../components/ScrambleText';
+import useCardEffects from '../hooks/useCardEffects';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const PrizesSection: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
+
+  // 3D tilt and cursor spotlight
+  useCardEffects(sectionRef, '.prize-card');
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -157,6 +161,7 @@ export const PrizesSection: React.FC = () => {
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 position: 'relative',
+                overflow: 'visible',
                 boxShadow: isChampion ? '0 0 35px rgba(255, 255, 255, 0.05)' : 'none',
               }}
             >
@@ -165,9 +170,9 @@ export const PrizesSection: React.FC = () => {
                 <div
                   style={{
                     position: 'absolute',
-                    top: '-12px',
+                    top: '-13px',
                     left: '2rem',
-                    padding: '0.25rem 0.75rem',
+                    padding: '0.35rem 0.9rem',
                     borderRadius: '9999px',
                     backgroundColor: '#f2f2f2',
                     color: '#0a0a0a',
@@ -175,6 +180,10 @@ export const PrizesSection: React.FC = () => {
                     fontSize: '0.6875rem',
                     fontWeight: 700,
                     letterSpacing: '0.15em',
+                    lineHeight: 1,
+                    whiteSpace: 'nowrap',
+                    zIndex: 10,
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.45)',
                   }}
                 >
                   {prize.badge}
