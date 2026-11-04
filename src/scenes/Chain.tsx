@@ -1,128 +1,122 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useAppStore } from '../store/useAppStore';
+import {
+  LINK_COUNT,
+  LINK_PITCH,
+  createLinkGeometry,
+} from './StadiumCurve';
 
-// Stadium / elongated torus curve for realistic chain links
-class StadiumCurve extends THREE.Curve<THREE.Vector3> {
-  halfLength: number;
-  bendRadius: number;
+const TRAVEL_SPEED = 1.4;
+const AXIAL_ROTATION_SPEED = 0.16;
 
-  constructor(halfLength = 0.52, bendRadius = 0.62) {
-    super();
-    this.halfLength = halfLength;
-    this.bendRadius = bendRadius;
-  }
-
-  getPoint(t: number, optionalTarget = new THREE.Vector3()) {
-    const straight = 2 * this.halfLength;
-    const arc = Math.PI * this.bendRadius;
-    const total = 2 * straight + 2 * arc;
-
-    let d = (t % 1) * total;
-    if (d < 0) d += total;
-
-    // Segment 1: top straight from (+halfLength, bendRadius, 0) to (-halfLength, bendRadius, 0)
-    if (d <= straight) {
-      const u = d / straight;
-      return optionalTarget.set(this.halfLength - u * straight, this.bendRadius, 0);
-    }
-    d -= straight;
-
-    // Segment 2: left semi-circle from (-halfLength, bendRadius, 0) to (-halfLength, -bendRadius, 0)
-    if (d <= arc) {
-      const theta = Math.PI / 2 + (d / arc) * Math.PI;
-      return optionalTarget.set(
-        -this.halfLength + this.bendRadius * Math.cos(theta),
-        this.bendRadius * Math.sin(theta),
-        0
-      );
-    }
-    d -= arc;
-
-    // Segment 3: bottom straight from (-halfLength, -bendRadius, 0) to (+halfLength, -bendRadius, 0)
-    if (d <= straight) {
-      const u = d / straight;
-      return optionalTarget.set(-this.halfLength + u * straight, -this.bendRadius, 0);
-    }
-    d -= straight;
-
-    // Segment 4: right semi-circle from (+halfLength, -bendRadius, 0) to (+halfLength, bendRadius, 0)
-    const theta = -Math.PI / 2 + (d / arc) * Math.PI;
-    return optionalTarget.set(
-      this.halfLength + this.bendRadius * Math.cos(theta),
-      this.bendRadius * Math.sin(theta),
-      0
-    );
-  }
+export interface LinkTransformSnapshot {
+  pos: THREE.Vector3;
+  quat: THREE.Quaternion;
 }
 
-export const LINK_COUNT = 40;
-export const LINK_PITCH = 1.62; // Distance between consecutive link centers along X
-export const WIRE_RADIUS = 0.17; // Wire thickness
-export const HALF_LENGTH = 0.52; // Half straight length
-export const BEND_RADIUS = 0.62; // Semi-circle radius
-export const TRAVEL_SPEED = 1.4; // Units per second from right to left (+x to -x)
-export const AXIAL_ROTATION_SPEED = 0.16; // Radian per second about the X axis
+interface ChainProps {
+  onBreakSnapshot: (transforms: LinkTransformSnapshot[]) => void;
+}
 
-export const Chain: React.FC = () => {
+export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const travelDistance = useRef(0);
+  const shakeTime = useRef(0);
+  const snapshotTaken = useRef(false);
 
   const totalSpan = LINK_COUNT * LINK_PITCH;
   const halfSpan = totalSpan / 2;
 
-  // Generate the stadium link geometry
-  const geometry = useMemo(() => {
-    const curve = new StadiumCurve(HALF_LENGTH, BEND_RADIUS);
-    return new THREE.TubeGeometry(curve, 64, WIRE_RADIUS, 20, true);
-  }, []);
+  const geometry = useMemo(() => createLinkGeometry(), []);
 
-  // Premium dark obsidian chrome with crisp specular response
-  const material = useMemo(() => {
-    return new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color('#0c0c0c'),
-      metalness: 0.98,
-      roughness: 0.18,
-      clearcoat: 0.8,
-      clearcoatRoughness: 0.1,
-      reflectivity: 1.0,
-      envMapIntensity: 0.9,
-    });
-  }, []);
+  const material = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: new THREE.Color('#0c0c0c'),
+        metalness: 0.98,
+        roughness: 0.18,
+        clearcoat: 0.8,
+        clearcoatRoughness: 0.1,
+        reflectivity: 1.0,
+        envMapIntensity: 0.9,
+      }),
+    []
+  );
 
-  useFrame((_, delta) => {
-    const safeDelta = Math.min(delta, 0.1);
+  const takeSnapshot = useCallback(() => {
+    if (!meshRef.current || snapshotTaken.current) return;
+    snapshotTaken.current = true;
 
-    // 1. Rotate whole chain slowly about its length axis (X axis)
+    // Update group world matrix to make sure it's fresh
     if (groupRef.current) {
-      groupRef.current.rotation.x += AXIAL_ROTATION_SPEED * safeDelta;
+      groupRef.current.updateMatrixWorld(true);
+    }
+    const groupWorldMatrix = groupRef.current ? groupRef.current.matrixWorld : new THREE.Matrix4();
+
+    const transforms: LinkTransformSnapshot[] = [];
+    const tempMatrix = new THREE.Matrix4();
+    const tempScale = new THREE.Vector3();
+
+    for (let i = 0; i < LINK_COUNT; i++) {
+      meshRef.current.getMatrixAt(i, tempMatrix);
+      const worldMat = new THREE.Matrix4().multiplyMatrices(groupWorldMatrix, tempMatrix);
+
+      const pos = new THREE.Vector3();
+      const quat = new THREE.Quaternion();
+      worldMat.decompose(pos, quat, tempScale);
+
+      transforms.push({ pos, quat });
+    }
+
+    onBreakSnapshot(transforms);
+  }, [onBreakSnapshot]);
+
+  useFrame((_state, delta) => {
+    const safeDelta = Math.min(delta, 0.1);
+    const { chainSpeedMultiplier, chainShake, breakFired } = useAppStore.getState();
+
+    // Trigger snapshot once break sequence fires
+    if (breakFired && !snapshotTaken.current) {
+      takeSnapshot();
+      return;
+    }
+
+    // Axial rotation
+    if (groupRef.current) {
+      groupRef.current.rotation.x += AXIAL_ROTATION_SPEED * safeDelta * chainSpeedMultiplier;
+    }
+
+    // Tension shake jitter
+    if (chainShake > 0 && groupRef.current) {
+      shakeTime.current += safeDelta * 28;
+      const shakeMag = 0.025 * chainShake;
+      groupRef.current.position.y = Math.sin(shakeTime.current * 2.1) * shakeMag;
+      groupRef.current.position.z = Math.cos(shakeTime.current * 1.7) * shakeMag * 0.5;
+    } else if (groupRef.current) {
+      groupRef.current.position.y *= 0.85;
+      groupRef.current.position.z *= 0.85;
     }
 
     if (!meshRef.current) return;
 
-    // 2. Travel horizontally from +x to -x in a seamless infinite loop
-    travelDistance.current += TRAVEL_SPEED * safeDelta;
+    // Travel leftwards
+    travelDistance.current += TRAVEL_SPEED * chainSpeedMultiplier * safeDelta;
 
     for (let i = 0; i < LINK_COUNT; i++) {
       const baseX = (i - (LINK_COUNT - 1) / 2) * LINK_PITCH;
       let x = baseX - travelDistance.current;
-
-      // Wrap seamlessly within [-halfSpan, +halfSpan]
       x = ((((x + halfSpan) % totalSpan) + totalSpan) % totalSpan) - halfSpan;
 
       dummy.position.set(x, 0, 0);
-
-      // Alternate links rotated 90 degrees about the X axis
-      const isOdd = i % 2 !== 0;
-      dummy.rotation.set(isOdd ? Math.PI / 2 : 0, 0, 0);
-      dummy.scale.set(1, 1, 1);
-
+      dummy.rotation.set(i % 2 !== 0 ? Math.PI / 2 : 0, 0, 0);
+      dummy.scale.setScalar(1);
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
     }
-
     meshRef.current.instanceMatrix.needsUpdate = true;
   });
 

@@ -149,6 +149,37 @@ code, kbd, samp, .mono {
   }
 }
 
+/* ── Break sequence ──────────────────────────────── */
+
+/* Full-screen white flash */
+.break-flash {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  pointer-events: none;
+  z-index: 10001;
+  opacity: 0;
+}
+
+/* Screen shake keyframe */
+@keyframes screenShake {
+  0%   { transform: translate3d(0, 0, 0); }
+  12%  { transform: translate3d(-8px, 4px, 0); }
+  24%  { transform: translate3d(8px, -6px, 0); }
+  36%  { transform: translate3d(-6px, 6px, 0); }
+  48%  { transform: translate3d(6px, -4px, 0); }
+  60%  { transform: translate3d(-4px, 2px, 0); }
+  72%  { transform: translate3d(4px, -2px, 0); }
+  84%  { transform: translate3d(-2px, 1px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes screenShake {
+    0%, 100% { transform: none; }
+  }
+}
+
 /* Magnetic Button Styles */
 .magnetic-btn {
   position: relative;

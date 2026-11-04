@@ -9,26 +9,40 @@ export const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
 
   return (
-    <main className="app-root">
-      {/* 1. Custom Interactive Cursor */}
+    <>
+      {/*
+       * Cursor lives OUTSIDE the shake wrapper.
+       * Any CSS transform on its ancestor breaks position:fixed,
+       * so it must be a direct child of the React root / body.
+       */}
       <CustomCursor />
 
-      {/* 2. Initial Preloader */}
-      <Preloader onComplete={() => setIsReady(true)} />
+      {/*
+       * Everything else sits inside #shake-wrapper.
+       * The break timeline applies screenShake to this div,
+       * NOT to document.body, so the cursor is never affected.
+       */}
+      <div id="shake-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
+        {/* White flash overlay */}
+        <div className="break-flash" aria-hidden="true" />
 
-      {/* 3. Persistent 3D Canvas with Ambience, Chain, and Post-processing */}
-      <CanvasContainer />
+        {/* Preloader */}
+        <Preloader onComplete={() => setIsReady(true)} />
 
-      {/* 4. Film Grain and Vignette Overlays */}
-      <div className="grain-overlay" aria-hidden="true" />
-      <div className="vignette-overlay" aria-hidden="true" />
+        {/* Persistent 3D Canvas */}
+        <CanvasContainer />
 
-      {/* 5. Faint Blockchain Hex Flank Streams */}
-      <BlockchainTexture />
+        {/* Film grain + vignette */}
+        <div className="grain-overlay" aria-hidden="true" />
+        <div className="vignette-overlay" aria-hidden="true" />
 
-      {/* 6. Hero Overlay UI (active in phase === 'intro') */}
-      <HeroOverlay isReady={isReady} />
-    </main>
+        {/* Faint hex data streams */}
+        <BlockchainTexture />
+
+        {/* Hero overlay */}
+        <HeroOverlay isReady={isReady} />
+      </div>
+    </>
   );
 };
 

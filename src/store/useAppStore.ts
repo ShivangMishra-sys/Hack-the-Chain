@@ -11,6 +11,15 @@ interface AppState {
   setChromaticOffset: (offset: number) => void;
   ambienceIntensity: number; // For background depth layers (default 1)
   setAmbienceIntensity: (val: number) => void;
+  // Break sequence signals (R3F reads these from outside the canvas)
+  chainSpeedMultiplier: number; // 1 = normal, 0 = stopped
+  setChainSpeedMultiplier: (v: number) => void;
+  chainShake: number; // non-zero triggers tension shake in Chain
+  setChainShake: (v: number) => void;
+  breakFired: boolean; // true = links have exploded
+  setBreakFired: (v: boolean) => void;
+  cameraZOffset: number; // push-in / ease-back for camera
+  setCameraZOffset: (v: number) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -18,8 +27,16 @@ export const useAppStore = create<AppState>((set) => ({
   setPhase: (phase) => set({ phase }),
   breakProgress: 0,
   setBreakProgress: (progress) => set({ breakProgress: progress }),
-  chromaticOffset: 0.0006, // subtle baseline
+  chromaticOffset: 0.0006,
   setChromaticOffset: (offset) => set({ chromaticOffset: offset }),
-  ambienceIntensity: 1.0, // default full ambience
+  ambienceIntensity: 1.0,
   setAmbienceIntensity: (val) => set({ ambienceIntensity: val }),
+  chainSpeedMultiplier: 1,
+  setChainSpeedMultiplier: (v) => set({ chainSpeedMultiplier: v }),
+  chainShake: 0,
+  setChainShake: (v) => set({ chainShake: v }),
+  breakFired: false,
+  setBreakFired: (v) => set({ breakFired: v }),
+  cameraZOffset: 0,
+  setCameraZOffset: (v) => set({ cameraZOffset: v }),
 }));
