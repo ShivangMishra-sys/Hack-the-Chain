@@ -6,6 +6,7 @@ import {
   createLinkGeometry,
 } from './StadiumCurve';
 import { LinkTransformSnapshot } from './Chain';
+import { useAppStore } from '../store/useAppStore';
 
 const SHARD_COUNT = 60;
 
@@ -76,6 +77,7 @@ interface BrokenChainProps {
 }
 
 export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => {
+  const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const shardsRef = useRef<THREE.Points>(null);
 
@@ -122,6 +124,21 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
     const DAMPING_ANG = 0.978;
     const DRIFT_VEL = 0.012;
 
+    const { phase, scrollY } = useAppStore.getState();
+
+    // Dim and soften debris in dashboard phase so content remains readable
+    if (phase === 'dashboard') {
+      material.color.set('#060606');
+      material.roughness = 0.38;
+      material.envMapIntensity = 0.45;
+
+      // Depth and parallax shift on scroll
+      if (groupRef.current) {
+        groupRef.current.position.y = -scrollY * 0.0015;
+        groupRef.current.position.z = -scrollY * 0.001;
+      }
+    }
+
     if (!meshRef.current) return;
 
     for (let i = 0; i < LINK_COUNT; i++) {
@@ -142,12 +159,12 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
         if (speed < 0.04) p.settled = true;
       } else {
-        // Gentle drift
+        // Gentle, lazy drift post-break
         p.pos.x += p.vel.x * DRIFT_VEL;
         p.pos.y += p.vel.y * DRIFT_VEL;
         p.pos.z += p.vel.z * DRIFT_VEL;
 
-        deltaEuler.set(p.angVel.x * 0.1 * dt, p.angVel.y * 0.1 * dt, p.angVel.z * 0.1 * dt);
+        deltaEuler.set(p.angVel.x * 0.12 * dt, p.angVel.y * 0.12 * dt, p.angVel.z * 0.12 * dt);
         deltaQuat.setFromEuler(deltaEuler);
         p.quat.multiply(deltaQuat);
       }
@@ -179,7 +196,7 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
   });
 
   return (
-    <group name="BrokenChain">
+    <group ref={groupRef} name="BrokenChain">
       <instancedMesh
         ref={meshRef}
         args={[geometry, material, LINK_COUNT]}

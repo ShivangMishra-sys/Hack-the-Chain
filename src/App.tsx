@@ -4,25 +4,20 @@ import CustomCursor from './components/CustomCursor';
 import Preloader from './components/Preloader';
 import HeroOverlay from './sections/HeroOverlay';
 import BlockchainTexture from './components/BlockchainTexture';
+import Dashboard from './sections/Dashboard';
+import { useAppStore } from './store/useAppStore';
 
 export const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
+  const phase = useAppStore((state) => state.phase);
 
   return (
     <>
-      {/*
-       * Cursor lives OUTSIDE the shake wrapper.
-       * Any CSS transform on its ancestor breaks position:fixed,
-       * so it must be a direct child of the React root / body.
-       */}
+      {/* 1. Custom cursor outside shake wrapper */}
       <CustomCursor />
 
-      {/*
-       * Everything else sits inside #shake-wrapper.
-       * The break timeline applies screenShake to this div,
-       * NOT to document.body, so the cursor is never affected.
-       */}
-      <div id="shake-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* 2. Shake wrapper contains all page content */}
+      <div id="shake-wrapper" style={{ position: 'relative', width: '100%', minHeight: '100%' }}>
         {/* White flash overlay */}
         <div className="break-flash" aria-hidden="true" />
 
@@ -32,15 +27,18 @@ export const App: React.FC = () => {
         {/* Persistent 3D Canvas */}
         <CanvasContainer />
 
-        {/* Film grain + vignette */}
+        {/* Film grain and vignette overlays */}
         <div className="grain-overlay" aria-hidden="true" />
         <div className="vignette-overlay" aria-hidden="true" />
 
-        {/* Faint hex data streams */}
+        {/* Blockchain hex flank streams */}
         <BlockchainTexture />
 
-        {/* Hero overlay */}
+        {/* Hero Overlay (intro + breaking phases) */}
         <HeroOverlay isReady={isReady} />
+
+        {/* Dashboard foundation (dashboard phase) */}
+        {phase === 'dashboard' && <Dashboard />}
       </div>
     </>
   );

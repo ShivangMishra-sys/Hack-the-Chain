@@ -17,17 +17,18 @@ export const CameraRig: React.FC = () => {
 
   useFrame((state, delta) => {
     const safeDelta = Math.min(delta, 0.1);
-    const { cameraZOffset } = useAppStore.getState();
+    const { cameraZOffset, scrollY } = useAppStore.getState();
 
+    // Subtle mouse parallax targets
     const targetX = mouseRef.current.x * 0.75;
-    const targetY = 1.0 + mouseRef.current.y * 0.45;
-    const targetZ = 11.5 + cameraZOffset;
+    const targetY = 1.0 + mouseRef.current.y * 0.45 - scrollY * 0.0015;
+    const targetZ = 11.5 + cameraZOffset + scrollY * 0.0025;
 
     state.camera.position.x = THREE.MathUtils.damp(state.camera.position.x, targetX, 3.2, safeDelta);
     state.camera.position.y = THREE.MathUtils.damp(state.camera.position.y, targetY, 3.2, safeDelta);
     state.camera.position.z = THREE.MathUtils.damp(state.camera.position.z, targetZ, 4.5, safeDelta);
 
-    state.camera.lookAt(0, 0, 0);
+    state.camera.lookAt(0, -scrollY * 0.001, 0);
   });
 
   return null;

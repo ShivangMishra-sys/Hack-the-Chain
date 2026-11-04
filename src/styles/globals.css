@@ -180,6 +180,32 @@ code, kbd, samp, .mono {
   }
 }
 
+/* ── Dashboard Styles ────────────────────────────── */
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
+  background-color: rgba(22, 22, 22, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.countdown-card:hover {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  transform: translateY(-3px);
+}
+
+@media (max-width: 860px) {
+  .nav-links-desktop {
+    display: none !important;
+  }
+}
+
 /* Magnetic Button Styles */
 .magnetic-btn {
   position: relative;

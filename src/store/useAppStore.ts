@@ -20,6 +20,9 @@ interface AppState {
   setBreakFired: (v: boolean) => void;
   cameraZOffset: number; // push-in / ease-back for camera
   setCameraZOffset: (v: number) => void;
+  // Scroll tracking for camera and floating debris depth shift
+  scrollY: number;
+  setScrollY: (y: number) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -39,4 +42,6 @@ export const useAppStore = create<AppState>((set) => ({
   setBreakFired: (v) => set({ breakFired: v }),
   cameraZOffset: 0,
   setCameraZOffset: (v) => set({ cameraZOffset: v }),
+  scrollY: 0,
+  setScrollY: (scrollY) => set({ scrollY }),
 }));
