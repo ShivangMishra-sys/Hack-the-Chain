@@ -6,6 +6,7 @@ export const Navbar: React.FC = () => {
   const scrollY = useAppStore((state) => state.scrollY);
   const lastScrollY = useRef(0);
   const [isHidden, setIsHidden] = useState(false);
+  const [activeSection, setActiveSection] = useState('about');
 
   useEffect(() => {
     // Hide nav when scrolling down past 80px, show when scrolling up
@@ -15,6 +16,19 @@ export const Navbar: React.FC = () => {
       setIsHidden(false);
     }
     lastScrollY.current = scrollY;
+
+    // Detect active section based on scroll position
+    const sections = siteContent.nav.links.map((l) => l.href.substring(1));
+    for (const sec of sections) {
+      const el = document.getElementById(sec);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= 200 && rect.bottom >= 200) {
+          setActiveSection(sec);
+          break;
+        }
+      }
+    }
   }, [scrollY]);
 
   return (
@@ -44,7 +58,7 @@ export const Navbar: React.FC = () => {
           justifyContent: 'space-between',
         }}
       >
-        {/* Wordmark */}
+        {/* Wordmark with Accent Status Dot */}
         <a
           href="#dashboard"
           style={{
@@ -61,8 +75,9 @@ export const Navbar: React.FC = () => {
               display: 'inline-block',
               width: 7,
               height: 7,
-              backgroundColor: '#f2f2f2',
+              backgroundColor: 'var(--accent)',
               borderRadius: '50%',
+              boxShadow: '0 0 8px rgba(198, 255, 61, 0.6)',
             }}
           />
           <span
@@ -88,7 +103,7 @@ export const Navbar: React.FC = () => {
           </span>
         </a>
 
-        {/* Section Links (hidden on mobile, visible on desktop) */}
+        {/* Section Links with Active Indicator */}
         <nav
           className="nav-links-desktop"
           style={{
@@ -97,29 +112,51 @@ export const Navbar: React.FC = () => {
             gap: '2rem',
           }}
         >
-          {siteContent.nav.links.map((link, idx) => (
-            <a
-              key={idx}
-              href={link.href}
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.8125rem',
-                letterSpacing: '0.12em',
-                color: 'var(--muted)',
-                textDecoration: 'none',
-                textTransform: 'uppercase',
-                transition: 'color 0.25s ease',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#f2f2f2')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
-              data-cursor-hover="true"
-            >
-              {link.label}
-            </a>
-          ))}
+          {siteContent.nav.links.map((link, idx) => {
+            const isActive = activeSection === link.href.substring(1);
+
+            return (
+              <a
+                key={idx}
+                href={link.href}
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.8125rem',
+                  letterSpacing: '0.12em',
+                  color: isActive ? '#f2f2f2' : 'var(--muted)',
+                  textDecoration: 'none',
+                  textTransform: 'uppercase',
+                  position: 'relative',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  transition: 'color 0.25s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#f2f2f2')}
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = isActive ? '#f2f2f2' : 'var(--muted)')
+                }
+                data-cursor-hover="true"
+              >
+                {/* Active Section Dot Indicator */}
+                {isActive && (
+                  <span
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--accent)',
+                      boxShadow: '0 0 6px var(--accent)',
+                    }}
+                  />
+                )}
+                {link.label}
+              </a>
+            );
+          })}
         </nav>
 
-        {/* Register CTA */}
+        {/* Register CTA Button with Accent */}
         <a
           href="#register"
           className="nav-register-btn"
@@ -130,22 +167,20 @@ export const Navbar: React.FC = () => {
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
             textDecoration: 'none',
-            color: '#f2f2f2',
+            color: 'var(--accent)',
             padding: '0.6rem 1.4rem',
-            border: '1px solid rgba(255, 255, 255, 0.25)',
+            border: '1px solid var(--accent)',
             borderRadius: '9999px',
             backgroundColor: 'transparent',
             transition: 'all 0.25s ease',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#f2f2f2';
+            e.currentTarget.style.backgroundColor = 'var(--accent)';
             e.currentTarget.style.color = '#0a0a0a';
-            e.currentTarget.style.borderColor = '#f2f2f2';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = '#f2f2f2';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+            e.currentTarget.style.color = 'var(--accent)';
           }}
           data-cursor-hover="true"
         >
@@ -157,4 +192,3 @@ export const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-

@@ -225,8 +225,8 @@ export const Footer: React.FC = () => {
                   width: 6,
                   height: 6,
                   borderRadius: '50%',
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 0 8px #ffffff',
+                  backgroundColor: 'var(--accent)',
+                  boxShadow: '0 0 8px var(--accent)',
                 }}
               />
               {siteContent.footer.status}

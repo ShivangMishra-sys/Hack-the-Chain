@@ -1,9 +1,8 @@
-import React, { useMemo, useRef, useCallback } from 'react';
+import React, { useMemo, useRef, useCallback, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useAppStore } from '../store/useAppStore';
 import {
-  LINK_COUNT,
   LINK_PITCH,
   createLinkGeometry,
 } from './StadiumCurve';
@@ -21,6 +20,19 @@ interface ChainProps {
 }
 
 export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
+  // Mobile uses 22 links, desktop uses 40 links (both even numbers for parity preservation)
+  const [linkCount, setLinkCount] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 22 : 40
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setLinkCount(window.innerWidth < 768 ? 22 : 40);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -28,7 +40,7 @@ export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
   const shakeTime = useRef(0);
   const snapshotTaken = useRef(false);
 
-  const totalSpan = LINK_COUNT * LINK_PITCH;
+  const totalSpan = linkCount * LINK_PITCH;
   const halfSpan = totalSpan / 2;
 
   const geometry = useMemo(() => createLinkGeometry(), []);
@@ -51,7 +63,6 @@ export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
     if (!meshRef.current || snapshotTaken.current) return;
     snapshotTaken.current = true;
 
-    // Update group world matrix to make sure it's fresh
     if (groupRef.current) {
       groupRef.current.updateMatrixWorld(true);
     }
@@ -61,7 +72,7 @@ export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
     const tempMatrix = new THREE.Matrix4();
     const tempScale = new THREE.Vector3();
 
-    for (let i = 0; i < LINK_COUNT; i++) {
+    for (let i = 0; i < linkCount; i++) {
       meshRef.current.getMatrixAt(i, tempMatrix);
       const worldMat = new THREE.Matrix4().multiplyMatrices(groupWorldMatrix, tempMatrix);
 
@@ -73,13 +84,12 @@ export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
     }
 
     onBreakSnapshot(transforms);
-  }, [onBreakSnapshot]);
+  }, [linkCount, onBreakSnapshot]);
 
   useFrame((_state, delta) => {
     const safeDelta = Math.min(delta, 0.1);
     const { chainSpeedMultiplier, chainShake, breakFired } = useAppStore.getState();
 
-    // Trigger snapshot once break sequence fires
     if (breakFired && !snapshotTaken.current) {
       takeSnapshot();
       return;
@@ -106,8 +116,8 @@ export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
     // Travel leftwards
     travelDistance.current += TRAVEL_SPEED * chainSpeedMultiplier * safeDelta;
 
-    for (let i = 0; i < LINK_COUNT; i++) {
-      const baseX = (i - (LINK_COUNT - 1) / 2) * LINK_PITCH;
+    for (let i = 0; i < linkCount; i++) {
+      const baseX = (i - (linkCount - 1) / 2) * LINK_PITCH;
       let x = baseX - travelDistance.current;
       x = ((((x + halfSpan) % totalSpan) + totalSpan) % totalSpan) - halfSpan;
 
@@ -124,7 +134,8 @@ export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
     <group ref={groupRef}>
       <instancedMesh
         ref={meshRef}
-        args={[geometry, material, LINK_COUNT]}
+        key={linkCount} // recreate instance array when resizing between mobile/desktop
+        args={[geometry, material, linkCount]}
         castShadow
         receiveShadow
       />

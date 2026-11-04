@@ -63,6 +63,7 @@ export const FaqSection: React.FC = () => {
       id="faq"
       ref={sectionRef}
       className="faq-section"
+      aria-label="Frequently Asked Questions"
       style={{
         maxWidth: '1440px',
         margin: '0 auto',
@@ -124,6 +125,8 @@ export const FaqSection: React.FC = () => {
       >
         {siteContent.faq.map((item, idx) => {
           const isOpen = openIdx === idx;
+          const buttonId = `faq-btn-${idx}`;
+          const panelId = `faq-panel-${idx}`;
 
           return (
             <div
@@ -144,9 +147,11 @@ export const FaqSection: React.FC = () => {
               }}
             >
               <button
+                id={buttonId}
                 type="button"
                 onClick={() => toggleAccordion(idx)}
                 aria-expanded={isOpen}
+                aria-controls={panelId}
                 style={{
                   width: '100%',
                   padding: '1.75rem 2rem',
@@ -196,12 +201,16 @@ export const FaqSection: React.FC = () => {
                     transition: 'transform 0.3s ease, color 0.3s ease',
                     flexShrink: 0,
                   }}
+                  aria-hidden="true"
                 >
                   +
                 </span>
               </button>
 
               <div
+                id={panelId}
+                role="region"
+                aria-labelledby={buttonId}
                 style={{
                   maxHeight: isOpen ? '250px' : '0px',
                   opacity: isOpen ? 1 : 0,
@@ -229,4 +238,3 @@ export const FaqSection: React.FC = () => {
 };
 
 export default FaqSection;
-

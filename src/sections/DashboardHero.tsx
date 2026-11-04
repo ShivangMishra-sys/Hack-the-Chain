@@ -68,8 +68,8 @@ export const DashboardHero: React.FC = () => {
             width: 6,
             height: 6,
             borderRadius: '50%',
-            backgroundColor: '#f2f2f2',
-            boxShadow: '0 0 8px rgba(255, 255, 255, 0.8)',
+            backgroundColor: 'var(--accent)',
+            boxShadow: '0 0 8px rgba(198, 255, 61, 0.8)',
           }}
         />
         <span

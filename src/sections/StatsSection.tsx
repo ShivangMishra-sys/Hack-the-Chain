@@ -124,7 +124,7 @@ export const StatsSection: React.FC = () => {
                 fontSize: 'clamp(2.4rem, 4.5vw, 3.6rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.03em',
-                color: '#f2f2f2',
+                color: 'var(--accent)',
                 lineHeight: 1,
                 fontVariantNumeric: 'tabular-nums',
               }}

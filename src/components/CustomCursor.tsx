@@ -58,8 +58,8 @@ export const CustomCursor: React.FC = () => {
       isHovered = true;
       gsap.to(ring, {
         scale: 1.75,
-        borderColor: 'rgba(255, 255, 255, 0.9)',
-        backgroundColor: 'rgba(255, 255, 255, 0.12)',
+        borderColor: '#c6ff3d',
+        backgroundColor: 'rgba(198, 255, 61, 0.12)',
         duration: 0.22,
         ease: 'power2.out',
       });

@@ -185,8 +185,8 @@ export const TimelineSection: React.FC = () => {
                   height: '12px',
                   borderRadius: '50%',
                   backgroundColor: '#0a0a0a',
-                  border: '2px solid #f2f2f2',
-                  boxShadow: '0 0 10px rgba(255, 255, 255, 0.4)',
+                  border: '2px solid var(--accent)',
+                  boxShadow: '0 0 8px rgba(198, 255, 61, 0.6)',
                   zIndex: 2,
                 }}
               />

@@ -135,9 +135,9 @@ export const RegisterCtaSection: React.FC = () => {
               justifyContent: 'center',
               padding: '1.35rem 3.5rem',
               borderRadius: '9999px',
-              backgroundColor: '#f2f2f2',
+              backgroundColor: 'var(--accent)',
               color: '#0a0a0a',
-              border: '1px solid #f2f2f2',
+              border: '1px solid var(--accent)',
               fontFamily: 'var(--font-mono)',
               fontSize: '0.9375rem',
               fontWeight: 700,
@@ -145,17 +145,17 @@ export const RegisterCtaSection: React.FC = () => {
               textTransform: 'uppercase',
               textDecoration: 'none',
               transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 0 30px rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 0 30px rgba(198, 255, 61, 0.25)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#f2f2f2';
-              e.currentTarget.style.boxShadow = '0 0 45px rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.color = 'var(--accent)';
+              e.currentTarget.style.boxShadow = '0 0 45px rgba(198, 255, 61, 0.4)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#f2f2f2';
+              e.currentTarget.style.backgroundColor = 'var(--accent)';
               e.currentTarget.style.color = '#0a0a0a';
-              e.currentTarget.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.boxShadow = '0 0 30px rgba(198, 255, 61, 0.25)';
             }}
             data-cursor-hover="true"
           >

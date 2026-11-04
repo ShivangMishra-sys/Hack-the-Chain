@@ -1,10 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import {
-  LINK_COUNT,
-  createLinkGeometry,
-} from './StadiumCurve';
+import { createLinkGeometry } from './StadiumCurve';
 import { LinkTransformSnapshot } from './Chain';
 import { useAppStore } from '../store/useAppStore';
 
@@ -20,9 +17,11 @@ interface LinkPhysics {
 
 function buildPhysics(transforms: LinkTransformSnapshot[]): LinkPhysics[] {
   const data: LinkPhysics[] = [];
-  for (let i = 0; i < LINK_COUNT; i++) {
+  const count = transforms.length;
+
+  for (let i = 0; i < count; i++) {
     const snap = transforms[i] || {
-      pos: new THREE.Vector3((i - LINK_COUNT / 2) * 1.62, 0, 0),
+      pos: new THREE.Vector3((i - count / 2) * 1.62, 0, 0),
       quat: new THREE.Quaternion(),
     };
 
@@ -107,11 +106,11 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
   const shardMaterial = useMemo(
     () =>
       new THREE.PointsMaterial({
-        color: '#ffffff',
-        size: 0.08,
+        color: '#c6ff3d',
+        size: 0.1,
         sizeAttenuation: true,
         transparent: true,
-        opacity: 0.75,
+        opacity: 0.85,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       }),
@@ -141,7 +140,8 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
     if (!meshRef.current) return;
 
-    for (let i = 0; i < LINK_COUNT; i++) {
+    const count = physics.length;
+    for (let i = 0; i < count; i++) {
       const p = physics[i];
       const speed = p.vel.length();
 
@@ -199,7 +199,7 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
     <group ref={groupRef} name="BrokenChain">
       <instancedMesh
         ref={meshRef}
-        args={[geometry, material, LINK_COUNT]}
+        args={[geometry, material, physics.length]}
         castShadow
       />
       <points ref={shardsRef} material={shardMaterial}>

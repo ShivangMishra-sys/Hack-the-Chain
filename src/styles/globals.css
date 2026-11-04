@@ -4,6 +4,7 @@
   --surface-2: #1f1f1f;
   --muted: #8a8a8a;
   --fg: #f2f2f2;
+  --accent: #c6ff3d;
   --border: rgba(255, 255, 255, 0.1);
   --border-subtle: rgba(255, 255, 255, 0.05);
 
@@ -151,11 +152,11 @@ code, kbd, samp, .mono {
 
 /* ── Break sequence ──────────────────────────────── */
 
-/* Full-screen white flash */
+/* Full-screen flash */
 .break-flash {
   position: fixed;
   inset: 0;
-  background: #ffffff;
+  background: var(--accent);
   pointer-events: none;
   z-index: 10001;
   opacity: 0;
@@ -190,6 +191,34 @@ code, kbd, samp, .mono {
   border-color: rgba(255, 255, 255, 0.28) !important;
   background-color: rgba(255, 255, 255, 0.065) !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Accessibility & Focus States */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 4px !important;
+}
+
+/* Touch targets and Mobile Stacking */
+@media (max-width: 768px) {
+  .magnetic-btn {
+    padding: 1.1rem 2rem !important;
+    font-size: 0.8125rem !important;
+    min-height: 48px !important;
+    touch-action: manipulation;
+  }
+
+  .nav-register-btn,
+  .huge-register-btn {
+    min-height: 48px !important;
+    touch-action: manipulation;
+  }
+
+  .glass-card:hover {
+    transform: none !important;
+  }
 }
 
 .meta-badge {
