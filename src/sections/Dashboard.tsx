@@ -2,6 +2,15 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import Navbar from '../components/Navbar';
 import DashboardHero from './DashboardHero';
+import StatsSection from './StatsSection';
+import AboutSection from './AboutSection';
+import TracksSection from './TracksSection';
+import TimelineSection from './TimelineSection';
+import PrizesSection from './PrizesSection';
+import SponsorsSection from './SponsorsSection';
+import FaqSection from './FaqSection';
+import RegisterCtaSection from './RegisterCtaSection';
+import Footer from './Footer';
 import useLenisScroll from '../hooks/useLenisScroll';
 
 export const Dashboard: React.FC = () => {
@@ -13,7 +22,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Fade/slide in when the dashboard mounts at the end of the break sequence
+    // Fade/slide in when dashboard mounts at the end of break sequence
     gsap.fromTo(
       containerRef.current,
       {
@@ -37,63 +46,44 @@ export const Dashboard: React.FC = () => {
         position: 'relative',
         zIndex: 20,
         width: '100%',
-        minHeight: '220vh', // Extends down so smooth scrolling and debris parallax can be tested
+        minHeight: '100vh',
         pointerEvents: 'auto',
       }}
     >
       {/* Sticky minimal nav */}
       <Navbar />
 
-      {/* Dashboard hero */}
+      {/* 1. Dashboard Hero Section with Countdown Timer */}
       <DashboardHero />
 
-      {/* Scroll indicator to test smooth scroll */}
-      <div
-        style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '2rem clamp(1.5rem, 5vw, 4rem) 10rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-        }}
-      >
-        <div
-          style={{
-            padding: '2.5rem',
-            borderRadius: '16px',
-            backgroundColor: 'rgba(22, 22, 22, 0.45)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            backdropFilter: 'blur(8px)',
-            maxWidth: '640px',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.8125rem',
-              letterSpacing: '0.15em',
-              color: 'var(--muted)',
-              marginBottom: '0.75rem',
-              textTransform: 'uppercase',
-            }}
-          >
-            // SCROLL DOWN TO TEST PARALLAX & LENIS
-          </p>
-          <p
-            style={{
-              fontSize: '1.05rem',
-              lineHeight: 1.6,
-              color: 'var(--fg)',
-            }}
-          >
-            The severed chain fragments and shards drift through the dark volume in the background, subtly responding to your mouse position and scrolling depth.
-          </p>
-        </div>
-      </div>
+      {/* 2. Stats Section (Animated number counters) */}
+      <StatsSection />
+
+      {/* 3. About Section (The Codex & Club info) */}
+      <AboutSection />
+
+      {/* 4. Tracks Section (4 cards in a grid) */}
+      <TracksSection />
+
+      {/* 5. Timeline (Vertical with scroll-scrubbed line) */}
+      <TimelineSection />
+
+      {/* 6. Prizes (3 Tiered cards) */}
+      <PrizesSection />
+
+      {/* 7. Sponsors (Grayscale logo grid) */}
+      <SponsorsSection />
+
+      {/* 8. FAQ (Smooth 6-item accordion) */}
+      <FaqSection />
+
+      {/* 9. Final Register CTA (Huge headline & button) */}
+      <RegisterCtaSection />
+
+      {/* 10. Footer (Club contact, socials, beacon) */}
+      <Footer />
     </div>
   );
 };
 
 export default Dashboard;
-

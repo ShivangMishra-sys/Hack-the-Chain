@@ -181,6 +181,17 @@ code, kbd, samp, .mono {
 }
 
 /* ── Dashboard Styles ────────────────────────────── */
+.glass-card {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  background-color: rgba(255, 255, 255, 0.065) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
 .meta-badge {
   display: inline-flex;
   align-items: center;
