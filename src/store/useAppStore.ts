@@ -9,6 +9,8 @@ interface AppState {
   setBreakProgress: (progress: number) => void;
   chromaticOffset: number; // For break explosion spike effect
   setChromaticOffset: (offset: number) => void;
+  ambienceIntensity: number; // For background depth layers (default 1)
+  setAmbienceIntensity: (val: number) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -18,4 +20,6 @@ export const useAppStore = create<AppState>((set) => ({
   setBreakProgress: (progress) => set({ breakProgress: progress }),
   chromaticOffset: 0.0006, // subtle baseline
   setChromaticOffset: (offset) => set({ chromaticOffset: offset }),
+  ambienceIntensity: 1.0, // default full ambience
+  setAmbienceIntensity: (val) => set({ ambienceIntensity: val }),
 }));

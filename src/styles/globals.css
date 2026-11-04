@@ -82,6 +82,73 @@ code, kbd, samp, .mono {
   background: radial-gradient(circle at center, transparent 40%, rgba(10, 10, 10, 0.7) 100%);
 }
 
+/* Blockchain Background Stream */
+.blockchain-texture-container {
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+
+.hex-column {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 160px;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--fg);
+  opacity: 0.055;
+  user-select: none;
+  pointer-events: none;
+}
+
+.hex-col-left {
+  left: clamp(1rem, 3.5vw, 4rem);
+}
+
+.hex-col-right {
+  right: clamp(1rem, 3.5vw, 4rem);
+  text-align: right;
+}
+
+.hex-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: hexScrollUp 45s linear infinite;
+}
+
+.hex-stream-reverse {
+  animation: hexScrollUp 55s linear infinite;
+}
+
+.hex-row {
+  white-space: nowrap;
+}
+
+@keyframes hexScrollUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .blockchain-texture-container {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hex-stream,
+  .hex-stream-reverse {
+    animation: none !important;
+  }
+}
+
 /* Magnetic Button Styles */
 .magnetic-btn {
   position: relative;
