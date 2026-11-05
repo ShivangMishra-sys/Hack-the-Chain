@@ -18,6 +18,7 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
   const titleText = siteContent.meta.title;
   const words = titleText.split(' ');
 
+  // Entrance animations once preloader finishes
   useEffect(() => {
     if (!isReady || !titleRef.current) return;
 
@@ -44,16 +45,65 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
       0.6
     );
 
-    return () => { tl.kill(); };
+    return () => {
+      tl.kill();
+    };
   }, [isReady]);
 
-  // Hide during dashboard phase
+  // Support "SCROLL / CLICK TO BEGIN" via wheel, touch gestures, and keyboard
+  useEffect(() => {
+    if (phase !== 'intro') return;
+
+    let touchStartY = 0;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > 15) {
+        triggerBreak();
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (Math.abs(e.touches[0].clientY - touchStartY) > 25) {
+        triggerBreak();
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ' || e.key === 'ArrowDown' || e.key === 'Enter') {
+        triggerBreak();
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [phase, triggerBreak]);
+
+  // Hide completely once inside dashboard phase
   if (phase === 'dashboard') return null;
 
   return (
     <div
       ref={containerRef}
       className="hero-overlay-root"
+      onClick={(e) => {
+        // If clicking on overlay (not directly on another interactive child), trigger break
+        if ((e.target as HTMLElement).tagName !== 'BUTTON') {
+          triggerBreak();
+        }
+      }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -64,25 +114,58 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         padding: 'clamp(1.5rem, 4vw, 3rem)',
-        pointerEvents: 'none',
+        cursor: 'default',
+        boxSizing: 'border-box',
       }}
     >
       {/* Top Header Bar */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+      <header
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+          pointerEvents: 'auto',
+        }}
+      >
         <div className="hero-meta-reveal">
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', letterSpacing: '0.25em', color: 'var(--muted)', textTransform: 'uppercase' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.8125rem',
+              letterSpacing: '0.25em',
+              color: 'var(--muted)',
+              textTransform: 'uppercase',
+            }}
+          >
             {siteContent.meta.edition}
           </span>
         </div>
         <div className="hero-meta-reveal">
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', letterSpacing: '0.2em', color: 'var(--muted)', textTransform: 'uppercase' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              letterSpacing: '0.2em',
+              color: 'var(--muted)',
+              textTransform: 'uppercase',
+            }}
+          >
             SCROLL / CLICK TO BEGIN
           </span>
         </div>
       </header>
 
-      {/* Hero Title */}
-      <div style={{ width: '100%', textAlign: 'center', marginTop: 'auto', marginBottom: 'auto', transform: 'translateY(-14vh)' }}>
+      {/* Hero Title & Subtext (Clean vertical centering, zero overlap with header) */}
+      <div
+        style={{
+          width: '100%',
+          textAlign: 'center',
+          margin: 'auto 0',
+          transform: 'translateY(-2vh)',
+          pointerEvents: 'auto',
+        }}
+      >
         <h1
           ref={titleRef}
           aria-label={titleText}
@@ -104,7 +187,11 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
           {words.map((word, wIdx) => (
             <span key={wIdx} style={{ display: 'inline-flex', overflow: 'hidden' }}>
               {word.split('').map((char, cIdx) => (
-                <span key={cIdx} className="hero-char" style={{ display: 'inline-block', willChange: 'transform, opacity' }}>
+                <span
+                  key={cIdx}
+                  className="hero-char"
+                  style={{ display: 'inline-block', willChange: 'transform, opacity' }}
+                >
                   {char}
                 </span>
               ))}
@@ -113,7 +200,14 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
         </h1>
         <p
           className="hero-meta-reveal"
-          style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', letterSpacing: '0.2em', color: 'var(--muted)', marginTop: '1.25rem', textTransform: 'uppercase' }}
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.8125rem',
+            letterSpacing: '0.2em',
+            color: 'var(--muted)',
+            marginTop: '1.5rem',
+            textTransform: 'uppercase',
+          }}
         >
           {siteContent.hero.subtext}
         </p>
@@ -122,7 +216,14 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
       {/* CTA Button */}
       <div
         className="hero-btn-container"
-        style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '2vh', pointerEvents: 'auto' }}
+        style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: '2vh',
+          pointerEvents: 'auto',
+        }}
       >
         <MagneticButton
           label={siteContent.hero.cta}

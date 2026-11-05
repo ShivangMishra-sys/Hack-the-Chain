@@ -1,17 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { useEasedProgress } from '../hooks/useEasedProgress';
+import { useAppStore } from '../store/useAppStore';
 
 export const ScrollProgressHairline: React.FC = () => {
-  const eased = useEasedProgress();
   const lineRef = useRef<HTMLDivElement>(null);
-
-  const progress = Math.min(1, Math.max(0, eased));
+  const scrollY = useAppStore((state) => state.scrollY);
 
   useEffect(() => {
-    if (lineRef.current) {
-      lineRef.current.style.transform = `scaleX(${progress})`;
-    }
-  }, [progress]);
+    if (!lineRef.current) return;
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+    lineRef.current.style.transform = `scaleX(${progress})`;
+  }, [scrollY]);
 
   return (
     <div
@@ -27,7 +26,7 @@ export const ScrollProgressHairline: React.FC = () => {
         backgroundColor: 'var(--accent)',
         opacity: 0.6,
         transformOrigin: 'left',
-        transform: `scaleX(${progress})`,
+        transform: 'scaleX(0)',
         zIndex: 100,
         pointerEvents: 'none',
         willChange: 'transform',
@@ -37,4 +36,3 @@ export const ScrollProgressHairline: React.FC = () => {
 };
 
 export default ScrollProgressHairline;
-

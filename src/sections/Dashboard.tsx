@@ -58,7 +58,7 @@ export const Dashboard: React.FC = () => {
       {/* Sticky minimal nav */}
       <Navbar />
 
-      {/* 1. Dashboard Hero Section with Countdown Timer */}
+      {/* 1. Dashboard Hero: "You broke the chain" Section */}
       <DashboardHero />
 
       {/* 2. Stats Section (Animated number counters) */}

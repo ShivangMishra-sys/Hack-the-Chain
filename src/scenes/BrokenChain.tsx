@@ -20,6 +20,8 @@ interface LinkPhysics {
 function buildPhysics(transforms: LinkTransformSnapshot[]): LinkPhysics[] {
   const data: LinkPhysics[] = [];
   const count = transforms.length;
+  const positions: THREE.Vector3[] = [];
+  const MIN_SEPARATION = 2.3;
 
   for (let i = 0; i < count; i++) {
     const snap = transforms[i] || {
@@ -27,24 +29,69 @@ function buildPhysics(transforms: LinkTransformSnapshot[]): LinkPhysics[] {
       quat: new THREE.Quaternion(),
     };
 
-    const bx = snap.pos.x;
-    const isLeft = bx <= 0;
-    const dirX = isLeft ? -(Math.random() * 2.5 + 1.5) : (Math.random() * 2.5 + 1.5);
-    const dirY = (Math.random() - 0.5) * 2.4;
-    const dirZ = (Math.random() - 0.5) * 2.8;
+    const isLeft = i % 2 === 0;
+    const side = isLeft ? -1 : 1;
 
-    // Links closest to center break harder
-    const proximity = Math.max(0, 1 - Math.abs(bx) / 8);
-    const speed = (0.8 + proximity * 1.8) * (Math.random() * 0.5 + 0.75);
+    // Pick non-overlapping positions spread across wide flanks (zoom-out & widescreen friendly)
+    let chosenPos = new THREE.Vector3();
+    let bestDist = 0;
+    let fallbackPos = new THREE.Vector3();
+
+    for (let attempt = 0; attempt < 40; attempt++) {
+      // Wide flank coverage: 3.6 to 16.5 from center
+      const distFromCenter = 3.6 + Math.random() * 12.8;
+      const candX = side * distFromCenter;
+      const candY = (Math.random() - 0.5) * 10.5; // -5.25 to +5.25
+      const candZ = (Math.random() - 0.5) * 9.5;  // -4.75 to +4.75
+      const cand = new THREE.Vector3(candX, candY, candZ);
+
+      if (attempt === 0) fallbackPos.copy(cand);
+
+      let closest = Infinity;
+      for (const p of positions) {
+        const d = cand.distanceTo(p);
+        if (d < closest) closest = d;
+      }
+
+      if (closest >= MIN_SEPARATION) {
+        chosenPos = cand;
+        break;
+      }
+
+      if (closest > bestDist) {
+        bestDist = closest;
+        fallbackPos.copy(cand);
+      }
+
+      if (attempt === 39) {
+        chosenPos = fallbackPos;
+      }
+    }
+
+    positions.push(chosenPos);
+
+    // Initial blast velocities away from central reading corridor
+    const dirX = isLeft ? -(Math.random() * 1.5 + 0.5) : +(Math.random() * 1.5 + 0.5);
+    const dirY = (Math.random() - 0.5) * 2.2;
+    const dirZ = (Math.random() - 0.5) * 2.6;
+    const speed = 0.75 + Math.random() * 0.45;
+
+    // Natural random tumbling orientation to prevent parallel grid tangling
+    const randomEuler = new THREE.Euler(
+      Math.random() * Math.PI * 2,
+      Math.random() * Math.PI * 2,
+      Math.random() * Math.PI * 2
+    );
+    const tumblingQuat = snap.quat.clone().multiply(new THREE.Quaternion().setFromEuler(randomEuler));
 
     data.push({
-      pos: snap.pos.clone(),
-      quat: snap.quat.clone(),
+      pos: chosenPos,
+      quat: tumblingQuat,
       vel: new THREE.Vector3(dirX * speed, dirY * speed, dirZ * speed),
       angVel: new THREE.Vector3(
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4,
-        (Math.random() - 0.5) * 4
+        (Math.random() - 0.5) * 3.0,
+        (Math.random() - 0.5) * 3.0,
+        (Math.random() - 0.5) * 3.0
       ),
       settled: false,
       offset: new THREE.Vector3(0, 0, 0),
@@ -206,9 +253,8 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
     const dt = Math.min(delta, 0.05);
     const DAMPING_VEL = 0.985;
     const DAMPING_ANG = 0.978;
-    const DRIFT_VEL = 0.012;
 
-    const { phase, scrollY, reforgeProgress } = useAppStore.getState();
+    const { phase, scrollY, scrollEased, reforgeProgress } = useAppStore.getState();
 
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
@@ -291,10 +337,26 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
         if (p.vel.length() < 0.04) p.settled = true;
       } else {
-        // Gentle, lazy baseline drift post-break (continues smoothly even while re-forged)
-        p.pos.x += p.vel.x * DRIFT_VEL;
-        p.pos.y += p.vel.y * DRIFT_VEL;
-        p.pos.z += p.vel.z * DRIFT_VEL;
+        // Gentle, lazy harmonic floating micro-drift post-break (bobs smoothly in place across the field)
+        const floatSpeed = 0.45 + (i % 5) * 0.12;
+        const driftX = Math.sin(state.clock.elapsedTime * floatSpeed + i * 1.3) * 0.003;
+        const driftY = Math.cos(state.clock.elapsedTime * floatSpeed * 0.8 + i * 1.7) * 0.003;
+        const driftZ = Math.sin(state.clock.elapsedTime * floatSpeed * 0.6 + i * 2.2) * 0.002;
+
+        p.pos.x += driftX;
+        p.pos.y += driftY;
+        p.pos.z += driftZ;
+
+        // Preserve open central reading channel: gently keep debris in flank zones
+        if (p.pos.x > -3.5 && p.pos.x < 0) {
+          p.pos.x -= 0.015;
+        } else if (p.pos.x < 3.5 && p.pos.x >= 0) {
+          p.pos.x += 0.015;
+        }
+
+        // Soft outer bounds keep debris nicely dispersed across wide viewports and zoom-out
+        if (p.pos.x < -17.5) p.pos.x += 0.02;
+        if (p.pos.x > 17.5) p.pos.x -= 0.02;
 
         deltaEuler.set(p.angVel.x * 0.12 * dt, p.angVel.y * 0.12 * dt, p.angVel.z * 0.12 * dt);
         deltaQuat.setFromEuler(deltaEuler);
@@ -356,6 +418,13 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
       // Calculate final rendered transform with continuous scrub interpolation
       tempLinkCurrentPos.addVectors(p.pos, p.offset);
+
+      // Debris parallax: nearer links move faster during scroll
+      if (phase === 'dashboard') {
+        const depthFactor = THREE.MathUtils.clamp((p.pos.z + 4.0) / 8.0, 0.2, 2.0);
+        const parallaxBlend = (1.0 - reforgeEase) * scrollEased;
+        tempLinkCurrentPos.z += parallaxBlend * depthFactor * 2.0;
+      }
 
       if (i < assembledCount) {
         // Target assembled position for link i

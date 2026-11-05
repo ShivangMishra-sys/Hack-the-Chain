@@ -25,6 +25,22 @@ export const siteContent = {
     subtext: 'A 36-hour collegiate crucible for hackers, cryptographers, and builders.',
     cta: 'Hack the Chain',
   },
+  actSequence: {
+    panel1: {
+      eyebrow: 'ACT 01 / THE BREAK',
+      title: 'You broke the chain.',
+    },
+    panel2: {
+      eyebrow: 'ACT 02 / THE BUILD',
+      title: 'Now build what’s next.',
+      sub: '36 hours. Real problems. A network of builders.',
+    },
+    panel3: {
+      eyebrow: 'ACT 03 / THE DROP',
+      dateVenue: 'OCTOBER 24-26, 2026 // CENTRAL AUDITORIUM',
+      cta: 'Register',
+    },
+  },
   stats: [
     { targetNum: 36, suffix: '', unit: 'HOURS', label: 'Continuous Innovation' },
     { targetNum: 500, suffix: '+', unit: 'HACKERS', label: 'From 60+ Campuses' },

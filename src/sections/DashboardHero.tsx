@@ -164,6 +164,35 @@ export const DashboardHero: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Register CTA Button */}
+      <div style={{ marginTop: '2.5rem' }}>
+        <a
+          href="#register"
+          className="dashboard-hero-btn"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '44px',
+            padding: '0.8rem 2.25rem',
+            borderRadius: '9999px',
+            backgroundColor: 'var(--accent)',
+            color: '#0a0a0a',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.8125rem',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            textDecoration: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 0 24px rgba(198, 255, 61, 0.25)',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          }}
+        >
+          Register Now
+        </a>
+      </div>
     </section>
   );
 };

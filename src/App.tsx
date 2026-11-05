@@ -11,6 +11,17 @@ export const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const phase = useAppStore((state) => state.phase);
 
+  // Guarantee clean start at top on page mount / refresh
+  React.useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+    useAppStore.getState().setScrollY(0);
+    useAppStore.getState().setScrollTarget(0);
+    useAppStore.getState().setScrollEased(0);
+  }, []);
+
   return (
     <>
       {/* 1. Custom cursor outside shake wrapper */}
