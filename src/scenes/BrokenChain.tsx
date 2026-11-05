@@ -1,7 +1,7 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { createLinkGeometry } from './StadiumCurve';
+import { createLinkGeometry, LINK_PITCH } from './StadiumCurve';
 import { LinkTransformSnapshot } from './Chain';
 import { useAppStore } from '../store/useAppStore';
 
@@ -83,6 +83,7 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const shardsRef = useRef<THREE.Points>(null);
+  const pulseLightRef = useRef<THREE.PointLight>(null);
 
   // Scratch objects reused every frame — zero allocations inside useFrame
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -97,7 +98,33 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
   const tempLinkCurrentPos = useMemo(() => new THREE.Vector3(), []);
   const diffVec = useMemo(() => new THREE.Vector3(), []);
 
+  // Re-forge scratch vectors and target orientation quaternions
+  const targetPos = useMemo(() => new THREE.Vector3(), []);
+  const targetQuat = useMemo(() => new THREE.Quaternion(), []);
+  const assembledQuatH = useMemo(() => new THREE.Quaternion(), []);
+  const assembledQuatV = useMemo(
+    () => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2),
+    []
+  );
+  const finalPos = useMemo(() => new THREE.Vector3(), []);
+  const finalQuat = useMemo(() => new THREE.Quaternion(), []);
+
   const isMouseActiveRef = useRef(false);
+  const pulseTriggeredRef = useRef(false);
+  const pulseProgressRef = useRef(0);
+
+  // Responsive assembled links count: fewer on mobile (8 vs 16)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < 768 : false
+  );
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Check if current device is a touch screen (tilt/mouse repulsion disabled)
   const isTouchDevice = useMemo(() => {
@@ -181,13 +208,36 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
     const DAMPING_ANG = 0.978;
     const DRIFT_VEL = 0.012;
 
-    const { phase, scrollY } = useAppStore.getState();
+    const { phase, scrollY, reforgeProgress } = useAppStore.getState();
 
-    // Dim and soften debris in dashboard phase so content remains readable
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Calculate smooth reforge easing (skips animation under prefers-reduced-motion)
+    const reforgeEase = prefersReducedMotion
+      ? reforgeProgress >= 0.5
+        ? 1.0
+        : 0.0
+      : THREE.MathUtils.smoothstep(reforgeProgress, 0.0, 1.0);
+
+    // Dynamic material adaptation: dim debris in dashboard, restore to chrome during re-forge
     if (phase === 'dashboard') {
-      material.color.set('#060606');
-      material.roughness = 0.38;
-      material.envMapIntensity = 0.45;
+      if (reforgeEase > 0.01) {
+        material.color.setRGB(
+          THREE.MathUtils.lerp(0.024, 0.08, reforgeEase),
+          THREE.MathUtils.lerp(0.024, 0.08, reforgeEase),
+          THREE.MathUtils.lerp(0.024, 0.08, reforgeEase)
+        );
+        material.roughness = THREE.MathUtils.lerp(0.38, 0.16, reforgeEase);
+        material.metalness = THREE.MathUtils.lerp(0.98, 1.0, reforgeEase);
+        material.envMapIntensity = THREE.MathUtils.lerp(0.45, 1.4, reforgeEase);
+      } else {
+        material.color.set('#060606');
+        material.roughness = 0.38;
+        material.metalness = 0.98;
+        material.envMapIntensity = 0.45;
+      }
 
       // Depth and parallax shift on scroll
       if (groupRef.current) {
@@ -198,9 +248,9 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
     if (!meshRef.current || !groupRef.current) return;
 
-    // Project cursor onto plane at debris depth
+    // Project cursor onto plane at debris depth for interactive repulsion
     let hasMouseIntersection = false;
-    if (!isTouchDevice && isMouseActiveRef.current && phase === 'dashboard') {
+    if (!isTouchDevice && isMouseActiveRef.current && phase === 'dashboard' && reforgeEase < 0.8) {
       groupRef.current.getWorldPosition(tempGroupWorldPos);
       debrisPlane.setFromNormalAndCoplanarPoint(planeNormal, tempGroupWorldPos);
 
@@ -214,9 +264,14 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
     const REPEL_RADIUS = 3.2;
     const REPEL_RADIUS_SQ = REPEL_RADIUS * REPEL_RADIUS;
-    const REPEL_FORCE = 28.0;
+    // Mouse repulsion yields to magnetic re-forge as progress increases
+    const REPEL_FORCE = 28.0 * (1.0 - reforgeEase);
     const SPRING_K = 11.5;
     const SPRING_DAMPING = 4.2;
+
+    // Assembled chain layout behind CTA (fewer links on mobile)
+    const assembledCount = isMobile ? 8 : 16;
+    const startX = -((assembledCount - 1) * LINK_PITCH) / 2;
 
     const count = physics.length;
     for (let i = 0; i < count; i++) {
@@ -236,7 +291,7 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
         if (p.vel.length() < 0.04) p.settled = true;
       } else {
-        // Gentle, lazy baseline drift post-break
+        // Gentle, lazy baseline drift post-break (continues smoothly even while re-forged)
         p.pos.x += p.vel.x * DRIFT_VEL;
         p.pos.y += p.vel.y * DRIFT_VEL;
         p.pos.z += p.vel.z * DRIFT_VEL;
@@ -250,7 +305,7 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
       }
 
       // Mouse repulsion physics (dashboard phase only)
-      if (hasMouseIntersection && phase === 'dashboard') {
+      if (hasMouseIntersection && phase === 'dashboard' && REPEL_FORCE > 0.01) {
         tempLinkCurrentPos.addVectors(p.pos, p.offset);
         const distSq = tempLinkCurrentPos.distanceToSquared(mouseLocal);
 
@@ -299,14 +354,73 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
         p.offset.multiplyScalar(4.5 / Math.sqrt(offSq));
       }
 
-      // Final rendered position = original drift path + damped mouse offset
-      dummy.position.addVectors(p.pos, p.offset);
-      dummy.quaternion.copy(p.quat);
-      dummy.scale.setScalar(1);
+      // Calculate final rendered transform with continuous scrub interpolation
+      tempLinkCurrentPos.addVectors(p.pos, p.offset);
+
+      if (i < assembledCount) {
+        // Target assembled position for link i
+        targetPos.set(startX + i * LINK_PITCH, 0.2, 0.0);
+
+        // Interlocking 90-degree alternating orientation
+        if (i % 2 === 0) {
+          targetQuat.copy(assembledQuatH);
+        } else {
+          targetQuat.copy(assembledQuatV);
+        }
+
+        // Seamless continuous interpolation between drift and re-forged chain
+        finalPos.lerpVectors(tempLinkCurrentPos, targetPos, reforgeEase);
+        finalQuat.slerpQuaternions(p.quat, targetQuat, reforgeEase);
+
+        dummy.position.copy(finalPos);
+        dummy.quaternion.copy(finalQuat);
+        dummy.scale.setScalar(1.0);
+      } else {
+        // Extra debris links outside the short assembled chain scale down smoothly
+        dummy.position.copy(tempLinkCurrentPos);
+        dummy.quaternion.copy(p.quat);
+        dummy.scale.setScalar(Math.max(0, 1.0 - reforgeEase * 1.25));
+      }
+
       dummy.updateMatrix();
       meshRef.current.setMatrixAt(i, dummy.matrix);
     }
     meshRef.current.instanceMatrix.needsUpdate = true;
+
+    // ── Single Accent Light Pulse when Fully Assembled ──
+    if (reforgeProgress >= 0.95 && !pulseTriggeredRef.current) {
+      pulseTriggeredRef.current = true;
+      pulseProgressRef.current = 0;
+    }
+
+    if (pulseTriggeredRef.current && pulseProgressRef.current <= 1.0 && !prefersReducedMotion) {
+      pulseProgressRef.current += dt * 1.15; // ~0.85s sweep across links
+      const p = Math.min(1.0, pulseProgressRef.current);
+      const xMin = startX - 1.2;
+      const xMax = -startX + 1.2;
+      const pulseX = THREE.MathUtils.lerp(xMin, xMax, p);
+
+      if (pulseLightRef.current) {
+        pulseLightRef.current.position.set(pulseX, 0.2, 1.4);
+        const arc = Math.sin(p * Math.PI);
+        pulseLightRef.current.intensity = arc * 10.0;
+      }
+
+      const arc = Math.sin(p * Math.PI);
+      material.emissive.set('#c6ff3d');
+      material.emissiveIntensity = arc * 0.45;
+    } else if (pulseProgressRef.current > 1.0) {
+      if (pulseLightRef.current) pulseLightRef.current.intensity = 0;
+      material.emissiveIntensity = 0;
+    }
+
+    // Scrolling back up releases pulse trigger so it can fire again on next reassembly
+    if (reforgeProgress < 0.65) {
+      pulseTriggeredRef.current = false;
+      pulseProgressRef.current = 0;
+      if (pulseLightRef.current) pulseLightRef.current.intensity = 0;
+      material.emissiveIntensity = 0;
+    }
 
     // Shards simulation
     if (shardsRef.current) {
@@ -343,6 +457,14 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
           />
         </bufferGeometry>
       </points>
+      {/* Accent light pulse along re-forged chain */}
+      <pointLight
+        ref={pulseLightRef}
+        color="#c6ff3d"
+        intensity={0}
+        distance={12}
+        decay={2}
+      />
     </group>
   );
 };

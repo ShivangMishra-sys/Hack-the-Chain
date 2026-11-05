@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { siteContent } from '../content';
 import ScrambleText from '../components/ScrambleText';
+import { useAppStore } from '../store/useAppStore';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,8 +14,12 @@ export const RegisterCtaSection: React.FC = () => {
     if (!sectionRef.current) return;
 
     const elements = sectionRef.current.querySelectorAll('.cta-reveal');
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const ctx = gsap.context(() => {
+      // CTA content text entrance
       gsap.fromTo(
         elements,
         { opacity: 0, y: 40 },
@@ -31,6 +36,26 @@ export const RegisterCtaSection: React.FC = () => {
           },
         }
       );
+
+      // Re-forge finale: scrub-linked ScrollTrigger that pulls debris into assembled chain
+      if (prefersReducedMotion) {
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top 85%',
+          onEnter: () => useAppStore.getState().setReforgeProgress(1),
+          onLeaveBack: () => useAppStore.getState().setReforgeProgress(0),
+        });
+      } else {
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: 'top 85%',
+          end: 'center 45%',
+          scrub: 0.6,
+          onUpdate: (self) => {
+            useAppStore.getState().setReforgeProgress(self.progress);
+          },
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();
