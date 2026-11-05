@@ -173,6 +173,72 @@ code, kbd, samp, .mono {
   opacity: 0;
 }
 
+/* ── Phase S6: Fracture Cracks & Halftone Burst ──── */
+.fracture-path {
+  stroke: #ffffff;
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: bevel;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: fractureGrow 0.3s steps(5, end) forwards, fractureFade 0.4s ease-out 0.35s forwards;
+}
+
+@keyframes fractureGrow {
+  0% {
+    stroke-dashoffset: 600;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fractureFade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes staticCrackFade {
+  0% {
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes halftoneBurst {
+  0% {
+    transform: translate(-50%, -50%) scale(0.08);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.35);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fracture-path {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+  .halftone-burst {
+    display: none !important;
+  }
+}
+
 /* Screen shake keyframe */
 @keyframes screenShake {
   0%   { transform: translate3d(0, 0, 0); }

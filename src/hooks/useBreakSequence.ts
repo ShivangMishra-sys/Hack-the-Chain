@@ -238,5 +238,9 @@ export function useBreakSequence() {
     setAmbienceIntensity,
   ]);
 
+  if (typeof window !== 'undefined') {
+    (window as any).__triggerBreak = triggerBreak;
+  }
+
   return { triggerBreak };
 }

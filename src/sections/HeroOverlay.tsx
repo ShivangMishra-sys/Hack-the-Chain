@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useAppStore } from '../store/useAppStore';
 import { siteContent } from '../content';
@@ -10,10 +10,52 @@ interface HeroOverlayProps {
 }
 
 export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
-  const { phase } = useAppStore();
+  const { phase, breakFired } = useAppStore();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { triggerBreak } = useBreakSequence();
+
+  const [glitchStyle, setGlitchStyle] = useState<{ textShadow: string; transform: string }>({
+    textShadow: 'none',
+    transform: 'none',
+  });
+
+  // Phase S6: Stepped ~12fps jitter with lime / off-white ghost split for 0.5s after snap
+  useEffect(() => {
+    if (!breakFired) return;
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) return;
+
+    const startTime = performance.now();
+    const DURATION = 500; // 0.5s duration
+    const INTERVAL = 1000 / 12; // ~12fps (~83.3ms)
+
+    const timer = setInterval(() => {
+      const elapsed = performance.now() - startTime;
+      if (elapsed > DURATION) {
+        clearInterval(timer);
+        setGlitchStyle({ textShadow: 'none', transform: 'none' });
+        return;
+      }
+
+      const offsetX = (Math.random() - 0.5) * 8;
+      const offsetY = (Math.random() - 0.5) * 4;
+      const skew = (Math.random() - 0.5) * 5;
+      const splitX = Math.round((Math.random() * 4 + 2) * (Math.random() > 0.5 ? 1 : -1));
+      const splitY = Math.round((Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1));
+
+      setGlitchStyle({
+        textShadow: `${splitX}px ${splitY}px 0 #c6ff3d, ${-splitX}px ${-splitY}px 0 rgba(242, 242, 242, 0.55)`,
+        transform: `translate3d(${offsetX.toFixed(1)}px, ${offsetY.toFixed(1)}px, 0) skewX(${skew.toFixed(1)}deg)`,
+      });
+    }, INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [breakFired]);
 
   const titleText = siteContent.meta.title;
   const words = titleText.split(' ');
@@ -214,6 +256,8 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
             justifyContent: 'center',
             gap: '0.35em',
             perspective: 800,
+            textShadow: glitchStyle.textShadow,
+            transform: glitchStyle.transform !== 'none' ? glitchStyle.transform : undefined,
           }}
         >
           {words.map((word, wIdx) => (
@@ -255,6 +299,8 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
           alignItems: 'center',
           marginBottom: '2vh',
           pointerEvents: 'auto',
+          transform: glitchStyle.transform !== 'none' ? glitchStyle.transform : undefined,
+          textShadow: glitchStyle.textShadow,
         }}
       >
         <MagneticButton

@@ -4,6 +4,7 @@ import CustomCursor from './components/CustomCursor';
 import Preloader from './components/Preloader';
 import HeroOverlay from './sections/HeroOverlay';
 import BlockchainTexture from './components/BlockchainTexture';
+import BreakGlitchOverlay from './components/BreakGlitchOverlay';
 import Dashboard from './sections/Dashboard';
 import { useAppStore } from './store/useAppStore';
 
@@ -47,6 +48,9 @@ export const App: React.FC = () => {
 
         {/* Hero Overlay (intro + breaking phases) */}
         <HeroOverlay isReady={isReady} />
+
+        {/* Comic-print break overlay (Fracture Cracks & Halftone Burst) */}
+        <BreakGlitchOverlay />
 
         {/* Dashboard foundation (dashboard phase) */}
         {phase === 'dashboard' && <Dashboard />}

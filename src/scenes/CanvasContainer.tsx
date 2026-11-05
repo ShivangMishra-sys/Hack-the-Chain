@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import Chain, { LinkTransformSnapshot } from './Chain';
 import BrokenChain from './BrokenChain';
+import ElectricArcs from './ElectricArcs';
 import Ambience from './Ambience';
 import CameraRig from './CameraRig';
 import Effects from './Effects';
@@ -58,6 +59,9 @@ export const CanvasContainer: React.FC = () => {
           ) : (
             <BrokenChain breakTransforms={breakSnapshot} />
           )}
+
+          {/* Electric Arcs (Phase S6) */}
+          <ElectricArcs />
 
           <Effects />
         </Suspense>
