@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import Navbar from '../components/Navbar';
+import ScrollProgressHairline from '../components/ScrollProgressHairline';
 import DashboardHero from './DashboardHero';
 import StatsSection from './StatsSection';
 import MarqueeStrip from '../components/MarqueeStrip';
@@ -51,6 +52,9 @@ export const Dashboard: React.FC = () => {
         pointerEvents: 'auto',
       }}
     >
+      {/* 2px fixed scroll-progress hairline */}
+      <ScrollProgressHairline />
+
       {/* Sticky minimal nav */}
       <Navbar />
 

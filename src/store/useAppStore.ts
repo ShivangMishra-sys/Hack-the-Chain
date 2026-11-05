@@ -23,6 +23,11 @@ interface AppState {
   // Scroll tracking for camera and floating debris depth shift
   scrollY: number;
   setScrollY: (y: number) => void;
+  // Scroll engine (Act 2 page progress)
+  scrollTarget: number;
+  setScrollTarget: (v: number) => void;
+  scrollEased: number;
+  setScrollEased: (v: number) => void;
   // Reforge finale progress (0 = floating debris, 1 = reassembled chain behind CTA)
   reforgeProgress: number;
   setReforgeProgress: (v: number) => void;
@@ -47,6 +52,13 @@ export const useAppStore = create<AppState>((set) => ({
   setCameraZOffset: (v) => set({ cameraZOffset: v }),
   scrollY: 0,
   setScrollY: (scrollY) => set({ scrollY }),
+  scrollTarget: 0,
+  setScrollTarget: (scrollTarget) => set({ scrollTarget }),
+  scrollEased: 0,
+  setScrollEased: (scrollEased) => set({ scrollEased }),
   reforgeProgress: 0,
   setReforgeProgress: (reforgeProgress) => set({ reforgeProgress }),
 }));
+
+export { useEasedProgress } from '../hooks/useEasedProgress';
+

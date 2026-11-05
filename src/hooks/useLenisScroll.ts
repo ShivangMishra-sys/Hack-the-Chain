@@ -11,6 +11,7 @@ export function getLenisVelocity(): number {
 export function useLenisScroll() {
   const phase = useAppStore((state) => state.phase);
   const setScrollY = useAppStore((state) => state.setScrollY);
+  const setScrollTarget = useAppStore((state) => state.setScrollTarget);
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
@@ -30,6 +31,11 @@ export function useLenisScroll() {
     document.documentElement.style.overflow = 'auto';
     document.body.style.overflow = 'auto';
 
+    // Set initial scroll progress
+    const initMaxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const initProgress = initMaxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / initMaxScroll)) : 0;
+    setScrollTarget(initProgress);
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -42,6 +48,10 @@ export function useLenisScroll() {
       if (typeof e.velocity === 'number') {
         activeLenisVelocity = e.velocity;
       }
+
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = maxScroll > 0 ? Math.min(1, Math.max(0, e.scroll / maxScroll)) : 0;
+      setScrollTarget(progress);
     });
 
     let rafId: number;
@@ -60,7 +70,7 @@ export function useLenisScroll() {
       lenisRef.current = null;
       activeLenisVelocity = 0;
     };
-  }, [phase, setScrollY]);
+  }, [phase, setScrollY, setScrollTarget]);
 
   return lenisRef;
 }
