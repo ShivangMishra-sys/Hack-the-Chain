@@ -69,9 +69,8 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
     >
       {/* Top Header Bar */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-        <div className="hero-meta-reveal" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ display: 'inline-block', width: 6, height: 6, backgroundColor: 'var(--accent)', boxShadow: '0 0 8px rgba(198, 255, 61, 0.7)', borderRadius: '50%' }} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', letterSpacing: '0.25em', color: 'var(--fg)', textTransform: 'uppercase' }}>
+        <div className="hero-meta-reveal">
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8125rem', letterSpacing: '0.25em', color: 'var(--muted)', textTransform: 'uppercase' }}>
             {siteContent.meta.edition}
           </span>
         </div>

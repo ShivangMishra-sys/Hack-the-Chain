@@ -204,31 +204,16 @@ export const Footer: React.FC = () => {
               {siteContent.footer.email}
             </a>
 
-            {/* Status Beacon */}
+            {/* Status Info */}
             <div
               style={{
-                padding: '0.65rem 0.85rem',
-                borderRadius: '8px',
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.6875rem',
-                letterSpacing: '0.1em',
+                letterSpacing: '0.12em',
                 color: 'var(--muted)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
+                textTransform: 'uppercase',
               }}
             >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--accent)',
-                  boxShadow: '0 0 8px var(--accent)',
-                }}
-              />
               {siteContent.footer.status}
             </div>
           </div>

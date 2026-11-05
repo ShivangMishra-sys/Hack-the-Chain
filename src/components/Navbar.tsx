@@ -59,7 +59,7 @@ export const Navbar: React.FC = () => {
           justifyContent: 'space-between',
         }}
       >
-        {/* Wordmark with Accent Status Dot */}
+        {/* Wordmark */}
         <a
           href="#dashboard"
           style={{
@@ -71,16 +71,6 @@ export const Navbar: React.FC = () => {
           }}
           data-cursor-hover="true"
         >
-          <span
-            style={{
-              display: 'inline-block',
-              width: 7,
-              height: 7,
-              backgroundColor: 'var(--accent)',
-              borderRadius: '50%',
-              boxShadow: '0 0 8px rgba(198, 255, 61, 0.6)',
-            }}
-          />
           <span
             style={{
               fontFamily: 'var(--font-heading)',
@@ -124,33 +114,20 @@ export const Navbar: React.FC = () => {
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.8125rem',
                   letterSpacing: '0.12em',
-                  color: isActive ? '#f2f2f2' : 'var(--muted)',
+                  color: isActive ? 'var(--accent)' : 'var(--muted)',
                   textDecoration: 'none',
                   textTransform: 'uppercase',
                   position: 'relative',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.35rem',
                   transition: 'color 0.25s ease',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#f2f2f2')}
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = isActive ? '#f2f2f2' : 'var(--muted)')
+                  (e.currentTarget.style.color = isActive ? 'var(--accent)' : 'var(--muted)')
                 }
                 data-cursor-hover="true"
               >
-                {/* Active Section Dot Indicator */}
-                {isActive && (
-                  <span
-                    style={{
-                      width: 4,
-                      height: 4,
-                      borderRadius: '50%',
-                      backgroundColor: 'var(--accent)',
-                      boxShadow: '0 0 6px var(--accent)',
-                    }}
-                  />
-                )}
                 <ScrambleText text={link.label} triggerOnHover={true} triggerOnScroll={false} />
               </a>
             );

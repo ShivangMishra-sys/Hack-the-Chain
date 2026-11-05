@@ -84,7 +84,7 @@ export const PrizesSection: React.FC = () => {
             marginBottom: '1rem',
           }}
         >
-          // 04. BOUNTIES & ALLOCATIONS
+          // 04 / BOUNTIES & ALLOCATIONS
         </p>
 
         <h2

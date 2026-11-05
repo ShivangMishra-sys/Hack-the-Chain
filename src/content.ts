@@ -32,7 +32,7 @@ export const siteContent = {
     { targetNum: 100000, prefix: 'Rs ', suffix: '', unit: 'PRIZE POOL', label: 'Cash & Bounties' },
   ],
   about: {
-    tag: '// 01. THE CODEX',
+    tag: '// 01 / THE CODEX',
     heading: 'BREAK THE MONOLITH. REDEFINE THE STACK.',
     clubName: 'BLOCKCHAIN & DEVELOPER STUDENT CLUB',
     body1:

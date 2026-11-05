@@ -47,43 +47,19 @@ export const DashboardHero: React.FC = () => {
         zIndex: 10,
       }}
     >
-      {/* Status indicator */}
-      <div
+      {/* Eyebrow Label */}
+      <p
         style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.65rem',
-          padding: '0.4rem 0.9rem',
-          borderRadius: '9999px',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          backgroundColor: 'rgba(22, 22, 22, 0.5)',
-          backdropFilter: 'blur(10px)',
-          width: 'fit-content',
-          marginBottom: '2rem',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.75rem',
+          letterSpacing: '0.25em',
+          color: 'var(--muted)',
+          textTransform: 'uppercase',
+          marginBottom: '1.75rem',
         }}
       >
-        <span
-          style={{
-            display: 'inline-block',
-            width: 6,
-            height: 6,
-            borderRadius: '50%',
-            backgroundColor: 'var(--accent)',
-            boxShadow: '0 0 8px rgba(198, 255, 61, 0.8)',
-          }}
-        />
-        <span
-          style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.75rem',
-            letterSpacing: '0.2em',
-            color: 'var(--muted)',
-            textTransform: 'uppercase',
-          }}
-        >
-          CHAIN SEVERED // PROTOCOL ACTIVE
-        </span>
-      </div>
+        CHAIN SEVERED // PROTOCOL ACTIVE
+      </p>
 
       {/* Main Headline */}
       <h1

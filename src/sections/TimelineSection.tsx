@@ -106,7 +106,7 @@ export const TimelineSection: React.FC = () => {
             marginBottom: '1rem',
           }}
         >
-          // 03. CHRONOLOGY
+          // 03 / CHRONOLOGY
         </p>
 
         <h2
@@ -197,18 +197,15 @@ export const TimelineSection: React.FC = () => {
                 position: 'relative',
               }}
             >
-              {/* Timeline Node Dot on Line */}
+              {/* Timeline Track Tick Marker */}
               <div
                 style={{
                   position: 'absolute',
-                  top: '1.75rem',
-                  left: 'calc(-1 * clamp(2rem, 4vw, 3.5rem) + clamp(0.6rem, 1.2vw, 1rem) - 5px)',
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  backgroundColor: '#0a0a0a',
-                  border: '2px solid var(--accent)',
-                  boxShadow: '0 0 8px rgba(198, 255, 61, 0.6)',
+                  top: '2.1rem',
+                  left: 'calc(-1 * clamp(2rem, 4vw, 3.5rem) + clamp(0.6rem, 1.2vw, 1rem) - 4px)',
+                  width: '10px',
+                  height: '2px',
+                  backgroundColor: 'var(--accent)',
                   zIndex: 2,
                 }}
               />

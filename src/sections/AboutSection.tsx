@@ -103,14 +103,11 @@ export const AboutSection: React.FC = () => {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
-            padding: '0.4rem 0.9rem',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
             fontFamily: 'var(--font-mono)',
             fontSize: '0.75rem',
             letterSpacing: '0.15em',
-            color: 'var(--fg)',
+            color: 'var(--muted)',
+            textTransform: 'uppercase',
           }}
         >
           <span>HOSTED BY</span>

@@ -86,7 +86,7 @@ export const TracksSection: React.FC = () => {
             marginBottom: '1rem',
           }}
         >
-          // 02. EXPLORATION VECTORS
+          // 02 / EXPLORATION VECTORS
         </p>
 
         <h2

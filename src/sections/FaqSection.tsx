@@ -90,7 +90,7 @@ export const FaqSection: React.FC = () => {
             marginBottom: '1rem',
           }}
         >
-          // 06. INTELLIGENCE & INQUIRIES
+          // 06 / INTELLIGENCE & INQUIRIES
         </p>
 
         <h2

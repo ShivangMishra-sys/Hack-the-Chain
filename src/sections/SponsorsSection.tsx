@@ -80,7 +80,7 @@ export const SponsorsSection: React.FC = () => {
             marginBottom: '1rem',
           }}
         >
-          // 05. ALLIANCE & BACKERS
+          // 05 / ALLIANCE & BACKERS
         </p>
 
         <h2
