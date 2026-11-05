@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { createLinkGeometry } from './StadiumCurve';
@@ -13,6 +13,8 @@ interface LinkPhysics {
   vel: THREE.Vector3;
   angVel: THREE.Vector3;
   settled: boolean;
+  offset: THREE.Vector3;
+  offsetVel: THREE.Vector3;
 }
 
 function buildPhysics(transforms: LinkTransformSnapshot[]): LinkPhysics[] {
@@ -45,6 +47,8 @@ function buildPhysics(transforms: LinkTransformSnapshot[]): LinkPhysics[] {
         (Math.random() - 0.5) * 4
       ),
       settled: false,
+      offset: new THREE.Vector3(0, 0, 0),
+      offsetVel: new THREE.Vector3(0, 0, 0),
     });
   }
   return data;
@@ -80,9 +84,60 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const shardsRef = useRef<THREE.Points>(null);
 
+  // Scratch objects reused every frame — zero allocations inside useFrame
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const deltaQuat = useMemo(() => new THREE.Quaternion(), []);
   const deltaEuler = useMemo(() => new THREE.Euler(), []);
+  const mouseNdc = useMemo(() => new THREE.Vector2(-1000, -1000), []);
+  const mouseWorld = useMemo(() => new THREE.Vector3(), []);
+  const mouseLocal = useMemo(() => new THREE.Vector3(), []);
+  const planeNormal = useMemo(() => new THREE.Vector3(0, 0, 1), []);
+  const debrisPlane = useMemo(() => new THREE.Plane(), []);
+  const tempGroupWorldPos = useMemo(() => new THREE.Vector3(), []);
+  const tempLinkCurrentPos = useMemo(() => new THREE.Vector3(), []);
+  const diffVec = useMemo(() => new THREE.Vector3(), []);
+
+  const isMouseActiveRef = useRef(false);
+
+  // Check if current device is a touch screen (tilt/mouse repulsion disabled)
+  const isTouchDevice = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return (
+      window.matchMedia('(pointer: coarse)').matches ||
+      !window.matchMedia('(pointer: fine)').matches ||
+      'ontouchstart' in window ||
+      (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0)
+    );
+  }, []);
+
+  // Track global window mouse coordinates to ensure continuous tracking even when canvas is pointer-events: none
+  useEffect(() => {
+    if (isTouchDevice) return;
+
+    const onMouseMove = (e: MouseEvent) => {
+      isMouseActiveRef.current = true;
+      mouseNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    const onMouseLeave = () => {
+      isMouseActiveRef.current = false;
+    };
+
+    const onMouseEnter = () => {
+      isMouseActiveRef.current = true;
+    };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    document.addEventListener('mouseleave', onMouseLeave);
+    document.addEventListener('mouseenter', onMouseEnter);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseleave', onMouseLeave);
+      document.removeEventListener('mouseenter', onMouseEnter);
+    };
+  }, [isTouchDevice, mouseNdc]);
 
   const physics = useMemo(() => buildPhysics(breakTransforms), [breakTransforms]);
   const shardData = useMemo(() => buildShardData(), []);
@@ -117,7 +172,10 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
     []
   );
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
+    // Pause immediately when browser tab is hidden to save resources and avoid frame jumps
+    if (typeof document !== 'undefined' && document.hidden) return;
+
     const dt = Math.min(delta, 0.05);
     const DAMPING_VEL = 0.985;
     const DAMPING_ANG = 0.978;
@@ -138,15 +196,34 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
       }
     }
 
-    if (!meshRef.current) return;
+    if (!meshRef.current || !groupRef.current) return;
+
+    // Project cursor onto plane at debris depth
+    let hasMouseIntersection = false;
+    if (!isTouchDevice && isMouseActiveRef.current && phase === 'dashboard') {
+      groupRef.current.getWorldPosition(tempGroupWorldPos);
+      debrisPlane.setFromNormalAndCoplanarPoint(planeNormal, tempGroupWorldPos);
+
+      state.raycaster.setFromCamera(mouseNdc, state.camera);
+      const hit = state.raycaster.ray.intersectPlane(debrisPlane, mouseWorld);
+      if (hit) {
+        groupRef.current.worldToLocal(mouseLocal.copy(mouseWorld));
+        hasMouseIntersection = true;
+      }
+    }
+
+    const REPEL_RADIUS = 3.2;
+    const REPEL_RADIUS_SQ = REPEL_RADIUS * REPEL_RADIUS;
+    const REPEL_FORCE = 28.0;
+    const SPRING_K = 11.5;
+    const SPRING_DAMPING = 4.2;
 
     const count = physics.length;
     for (let i = 0; i < count; i++) {
       const p = physics[i];
-      const speed = p.vel.length();
 
       if (!p.settled) {
-        // Position integration
+        // Initial break explosion integration
         p.pos.addScaledVector(p.vel, dt);
         p.vel.multiplyScalar(DAMPING_VEL);
 
@@ -157,9 +234,9 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
 
         p.angVel.multiplyScalar(DAMPING_ANG);
 
-        if (speed < 0.04) p.settled = true;
+        if (p.vel.length() < 0.04) p.settled = true;
       } else {
-        // Gentle, lazy drift post-break
+        // Gentle, lazy baseline drift post-break
         p.pos.x += p.vel.x * DRIFT_VEL;
         p.pos.y += p.vel.y * DRIFT_VEL;
         p.pos.z += p.vel.z * DRIFT_VEL;
@@ -167,9 +244,63 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
         deltaEuler.set(p.angVel.x * 0.12 * dt, p.angVel.y * 0.12 * dt, p.angVel.z * 0.12 * dt);
         deltaQuat.setFromEuler(deltaEuler);
         p.quat.multiply(deltaQuat);
+
+        // Dampen any angular velocity kick back toward baseline
+        p.angVel.multiplyScalar(Math.max(0, 1.0 - 0.75 * dt));
       }
 
-      dummy.position.copy(p.pos);
+      // Mouse repulsion physics (dashboard phase only)
+      if (hasMouseIntersection && phase === 'dashboard') {
+        tempLinkCurrentPos.addVectors(p.pos, p.offset);
+        const distSq = tempLinkCurrentPos.distanceToSquared(mouseLocal);
+
+        if (distSq < REPEL_RADIUS_SQ) {
+          const dist = Math.sqrt(distSq);
+          const proximity = 1.0 - dist / REPEL_RADIUS;
+          const factor = proximity * proximity; // Smooth quadratic falloff
+
+          diffVec.subVectors(tempLinkCurrentPos, mouseLocal);
+          diffVec.z += proximity * 0.4; // Push slightly backward in Z for 3D depth
+
+          const len = diffVec.length();
+          if (len > 0.0001) {
+            diffVec.divideScalar(len);
+          } else {
+            diffVec.set(0, 1, 0.5).normalize();
+          }
+
+          // Add repulsion impulse to offset velocity
+          p.offsetVel.addScaledVector(diffVec, REPEL_FORCE * factor * dt);
+
+          // Angular velocity kick on contact
+          const kick = 4.5 * factor * dt;
+          p.angVel.x += (diffVec.y - diffVec.z) * kick;
+          p.angVel.y += (diffVec.z - diffVec.x) * kick;
+          p.angVel.z += (diffVec.x - diffVec.y) * kick;
+        }
+      }
+
+      // Spring back toward original drift path with damping
+      // F = -k * offset - c * offsetVel
+      p.offsetVel.addScaledVector(p.offset, -SPRING_K * dt);
+      p.offsetVel.multiplyScalar(Math.max(0, 1.0 - SPRING_DAMPING * dt));
+
+      // Velocity cap to guarantee zero explosions
+      const speedSq = p.offsetVel.lengthSq();
+      if (speedSq > 144) {
+        p.offsetVel.multiplyScalar(12 / Math.sqrt(speedSq));
+      }
+
+      p.offset.addScaledVector(p.offsetVel, dt);
+
+      // Displacement cap for stability
+      const offSq = p.offset.lengthSq();
+      if (offSq > 20.25) {
+        p.offset.multiplyScalar(4.5 / Math.sqrt(offSq));
+      }
+
+      // Final rendered position = original drift path + damped mouse offset
+      dummy.position.addVectors(p.pos, p.offset);
       dummy.quaternion.copy(p.quat);
       dummy.scale.setScalar(1);
       dummy.updateMatrix();
@@ -177,7 +308,7 @@ export const BrokenChain: React.FC<BrokenChainProps> = ({ breakTransforms }) => 
     }
     meshRef.current.instanceMatrix.needsUpdate = true;
 
-    // Shards
+    // Shards simulation
     if (shardsRef.current) {
       const posAttr = shardsRef.current.geometry.attributes.position as THREE.BufferAttribute;
       const arr = posAttr.array as Float32Array;
