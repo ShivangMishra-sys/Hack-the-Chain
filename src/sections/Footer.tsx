@@ -4,7 +4,7 @@ import { siteContent } from '../content';
 export const Footer: React.FC = () => {
   return (
     <footer
-      className="site-footer"
+      className="site-footer footer-veil"
       style={{
         borderTop: '1px solid rgba(255, 255, 255, 0.08)',
         backgroundColor: 'rgba(10, 10, 10, 0.85)',
@@ -19,7 +19,9 @@ export const Footer: React.FC = () => {
         style={{
           maxWidth: '1440px',
           margin: '0 auto',
-          padding: '5rem clamp(1.5rem, 5vw, 4rem) 3.5rem',
+          padding: '5rem clamp(1.5rem, 5vw, 4rem) calc(3.5rem + env(safe-area-inset-bottom, 0px))',
+          paddingLeft: 'calc(clamp(1.5rem, 5vw, 4rem) + env(safe-area-inset-left, 0px))',
+          paddingRight: 'calc(clamp(1.5rem, 5vw, 4rem) + env(safe-area-inset-right, 0px))',
         }}
       >
         {/* Top Grid */}

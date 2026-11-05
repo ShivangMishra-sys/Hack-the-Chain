@@ -16,6 +16,7 @@ export const CameraRig: React.FC = () => {
   }, []);
 
   useFrame((state, delta) => {
+    if (typeof document !== 'undefined' && document.hidden) return;
     const safeDelta = Math.min(delta, 0.1);
     const { cameraZOffset, scrollY, phase } = useAppStore.getState();
 

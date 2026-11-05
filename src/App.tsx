@@ -23,6 +23,25 @@ export const App: React.FC = () => {
     useAppStore.getState().setScrollEased(0);
   }, []);
 
+  // Phase S9: iOS unlock paused media on first user interaction
+  React.useEffect(() => {
+    const unlockMedia = () => {
+      if (typeof window !== 'undefined') {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          if (ctx.state === 'suspended') {
+            ctx.resume();
+          }
+        }
+      }
+      window.removeEventListener('touchstart', unlockMedia);
+      window.removeEventListener('click', unlockMedia);
+    };
+    window.addEventListener('touchstart', unlockMedia, { passive: true, once: true });
+    window.addEventListener('click', unlockMedia, { passive: true, once: true });
+  }, []);
+
   // Phase S8: Apply misregistration jitter once when each heading scrolls into view
   React.useEffect(() => {
     const prefersReduced =

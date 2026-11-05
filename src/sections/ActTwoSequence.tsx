@@ -76,6 +76,12 @@ export const ActTwoSequence: React.FC = () => {
     let rafId: number;
 
     const tick = () => {
+      // Phase S9: Pause loop when document is hidden
+      if (typeof document !== 'undefined' && document.hidden) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+
       // 1. Calculate actProgress (0..1) from wrapper position
       if (wrapperRef.current) {
         const rect = wrapperRef.current.getBoundingClientRect();
@@ -171,8 +177,8 @@ export const ActTwoSequence: React.FC = () => {
           position: 'fixed',
           top: 0,
           left: 0,
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100dvh',
           zIndex: 25,
           overflow: 'hidden',
           display: 'flex',
@@ -182,6 +188,8 @@ export const ActTwoSequence: React.FC = () => {
           padding: 'clamp(1.5rem, 5vw, 4rem)',
           paddingTop: 'calc(clamp(1.5rem, 5vw, 4rem) + env(safe-area-inset-top, 0px))',
           paddingBottom: 'calc(clamp(1.5rem, 5vw, 4rem) + env(safe-area-inset-bottom, 0px))',
+          paddingLeft: 'calc(clamp(1.5rem, 5vw, 4rem) + env(safe-area-inset-left, 0px))',
+          paddingRight: 'calc(clamp(1.5rem, 5vw, 4rem) + env(safe-area-inset-right, 0px))',
           boxSizing: 'border-box',
           willChange: 'opacity',
         }}

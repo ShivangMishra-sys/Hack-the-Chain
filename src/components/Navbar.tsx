@@ -39,11 +39,10 @@ export const Navbar: React.FC = () => {
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '100vw',
+        width: '100%',
         zIndex: 50,
         transform: isHidden ? 'translateY(-100%)' : 'translateY(0%)',
         transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-        background: 'linear-gradient(to bottom, rgba(10, 10, 10, 0.94) 0%, rgba(10, 10, 10, 0.82) 65%, rgba(10, 10, 10, 0) 100%)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
       }}
@@ -52,7 +51,7 @@ export const Navbar: React.FC = () => {
         style={{
           maxWidth: '1440px',
           margin: '0 auto',
-          padding: '1rem clamp(1.25rem, 4vw, 3rem) 1.25rem',
+          padding: 'calc(1rem + env(safe-area-inset-top, 0px)) calc(clamp(1.25rem, 4vw, 3rem) + env(safe-area-inset-right, 0px)) 1.25rem calc(clamp(1.25rem, 4vw, 3rem) + env(safe-area-inset-left, 0px))',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

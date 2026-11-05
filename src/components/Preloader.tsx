@@ -126,6 +126,8 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       style={{
         position: 'fixed',
         inset: 0,
+        width: '100%',
+        height: '100dvh',
         backgroundColor: '#0a0a0a',
         zIndex: 10000,
         display: 'flex',
@@ -133,6 +135,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '1.25rem',
+        padding: 'env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)',
       }}
     >
       {/* Mono progress label: "LOADING 0%" to "LOADING 100%" */}

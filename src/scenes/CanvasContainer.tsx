@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import Chain, { LinkTransformSnapshot } from './Chain';
@@ -10,6 +10,16 @@ import Effects from './Effects';
 
 export const CanvasContainer: React.FC = () => {
   const [breakSnapshot, setBreakSnapshot] = useState<LinkTransformSnapshot[] | null>(null);
+  const [isTabVisible, setIsTabVisible] = useState(true);
+
+  // Phase S9: Pause render loop when tab is hidden
+  useEffect(() => {
+    const handleVisibility = () => {
+      setIsTabVisible(document.visibilityState === 'visible');
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
 
   const handleBreakSnapshot = useCallback((transforms: LinkTransformSnapshot[]) => {
     setBreakSnapshot(transforms);
@@ -20,15 +30,16 @@ export const CanvasContainer: React.FC = () => {
       style={{
         position: 'fixed',
         inset: 0,
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100dvh',
         zIndex: 1,
         pointerEvents: 'none',
       }}
     >
       <Canvas
+        frameloop={isTabVisible ? 'always' : 'never'}
         camera={{ position: [0, 1.0, 11.5], fov: 38 }}
-        dpr={[1, Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 2, 2)]}
+        dpr={[1, Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1.5, 1.5)]}
         gl={{
           antialias: false,
           powerPreference: 'high-performance',

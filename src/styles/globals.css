@@ -11,6 +11,12 @@
   --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-body: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Safe area inset variables */
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
 }
 
 *, *::before, *::after {
@@ -75,8 +81,9 @@ code, kbd, samp, .mono {
 .grain-overlay {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   pointer-events: none;
   z-index: 9999;
   opacity: 0.035;
@@ -87,8 +94,9 @@ code, kbd, samp, .mono {
 .vignette-overlay {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   pointer-events: none;
   z-index: 9998;
   background: radial-gradient(circle at center, transparent 40%, rgba(10, 10, 10, 0.7) 100%);
@@ -98,8 +106,9 @@ code, kbd, samp, .mono {
 .halftone-overlay {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   pointer-events: none;
   z-index: 9997;
   opacity: 0.05;
@@ -410,7 +419,19 @@ button:focus-visible,
   transform: translateY(-3px);
 }
 
-/* Nav Collapse on screens under 720px */
+/* ── Phase S9: Responsive Breakpoints & Hardening ── */
+
+/* 900px breakpoint: Strengthen veils */
+@media (max-width: 900px) {
+  .header-veil {
+    background: linear-gradient(to bottom, rgba(10, 10, 10, 0.98) 0%, rgba(10, 10, 10, 0.92) 75%, rgba(10, 10, 10, 0) 100%) !important;
+  }
+  .footer-veil {
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.98) 0%, rgba(10, 10, 10, 0.92) 75%, rgba(10, 10, 10, 0) 100%) !important;
+  }
+}
+
+/* 720px breakpoint: Nav collapses, smaller type */
 @media (max-width: 720px) {
   .nav-links-desktop {
     display: none !important;
@@ -418,6 +439,101 @@ button:focus-visible,
   .nav-wordmark-sub {
     display: none !important;
   }
+  h1, .section-heading {
+    font-size: clamp(2rem, 7.5vw, 3.25rem) !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.05 !important;
+  }
+  h2 {
+    font-size: clamp(1.65rem, 6.2vw, 2.35rem) !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.05 !important;
+  }
+  .act-title {
+    font-size: clamp(28px, 8.5vw, 48px) !important;
+  }
+}
+
+/* 420px breakpoint: Hide decorative elements, full-width CTA */
+@media (max-width: 420px) {
+  .blockchain-texture-container,
+  .hex-column,
+  .vignette-overlay,
+  .halftone-overlay,
+  .grain-overlay,
+  [data-decorative="true"] {
+    display: none !important;
+  }
+  .huge-register-btn,
+  .act-register-btn,
+  .dashboard-hero-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+  }
+  .countdown-card {
+    padding: 0.6rem 0.25rem !important;
+  }
+  .meta-badge {
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Landscape under 520px height: Reduce panel padding */
+@media (max-height: 520px) and (orientation: landscape) {
+  .act-two-fixed-layer {
+    padding: 0.5rem clamp(1rem, 3vw, 2rem) !important;
+    padding-top: calc(0.5rem + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .act-panel {
+    margin-top: 0 !important;
+  }
+  .act-panel-1,
+  .act-panel-2,
+  .act-panel-3 {
+    margin-top: -50px !important;
+  }
+  .act-title {
+    font-size: clamp(22px, 5.2vh, 32px) !important;
+    line-height: 1.0 !important;
+  }
+  .mono-eyebrow {
+    margin-bottom: 0.35rem !important;
+    font-size: 0.6875rem !important;
+  }
+  section {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+  .glass-card {
+    padding: 1.5rem !important;
+  }
+  .dashboard-hero-section {
+    padding: 3.5rem 1.5rem 2rem !important;
+    min-height: auto !important;
+  }
+}
+
+/* Touch targets at least 36px tall across all interactive elements */
+a,
+button,
+input,
+select,
+textarea,
+[role="button"],
+.pill-btn,
+.nav-register-btn,
+.act-register-btn,
+.dashboard-hero-btn,
+.huge-register-btn,
+.magnetic-btn,
+.faq-trigger {
+  min-height: 36px;
 }
 
 /* ── Pill Buttons (Phase S4) ─────────────────────── */

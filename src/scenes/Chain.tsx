@@ -87,6 +87,7 @@ export const Chain: React.FC<ChainProps> = ({ onBreakSnapshot }) => {
   }, [linkCount, onBreakSnapshot]);
 
   useFrame((_state, delta) => {
+    if (typeof document !== 'undefined' && document.hidden) return;
     const safeDelta = Math.min(delta, 0.1);
     const { chainSpeedMultiplier, chainShake, breakFired } = useAppStore.getState();
 
