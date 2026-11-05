@@ -106,7 +106,7 @@ export const RegisterCtaSection: React.FC = () => {
         />
 
         <p
-          className="cta-reveal"
+          className="cta-reveal mono-eyebrow"
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '0.8125rem',
@@ -120,12 +120,13 @@ export const RegisterCtaSection: React.FC = () => {
         </p>
 
         <h2
-          className="cta-reveal"
+          className="cta-reveal section-heading"
           style={{
             fontSize: 'clamp(2.5rem, 7vw, 6.2rem)',
             fontWeight: 700,
-            letterSpacing: '-0.04em',
-            lineHeight: 0.98,
+            letterSpacing: '-0.03em',
+            lineHeight: 1,
+            textWrap: 'balance',
             color: '#f2f2f2',
             maxWidth: '18ch',
             marginBottom: '2rem',
@@ -172,15 +173,16 @@ export const RegisterCtaSection: React.FC = () => {
             href="https://devpost.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="huge-register-btn"
+            className="huge-register-btn pill-btn"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '1.35rem 3.5rem',
-              borderRadius: '9999px',
+              padding: '1.25rem 3.5rem',
+              borderRadius: '999px',
               backgroundColor: 'var(--accent)',
               color: '#0a0a0a',
+              WebkitTextFillColor: '#0a0a0a',
               border: '1px solid var(--accent)',
               fontFamily: 'var(--font-mono)',
               fontSize: '0.9375rem',
@@ -188,18 +190,22 @@ export const RegisterCtaSection: React.FC = () => {
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               textDecoration: 'none',
-              transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-              boxShadow: '0 0 30px rgba(198, 255, 61, 0.25)',
+              boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.10), 0 0 30px rgba(198, 255, 61, 0.25)',
+              transition: 'transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), background-color 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), color 0.4s cubic-bezier(0.22, 0.61, 0.36, 1)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
               e.currentTarget.style.color = 'var(--accent)';
-              e.currentTarget.style.boxShadow = '0 0 45px rgba(198, 255, 61, 0.4)';
+              (e.currentTarget.style as any).WebkitTextFillColor = 'var(--accent)';
+              e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(255, 255, 255, 0.15), 0 0 45px rgba(198, 255, 61, 0.4)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'var(--accent)';
               e.currentTarget.style.color = '#0a0a0a';
-              e.currentTarget.style.boxShadow = '0 0 30px rgba(198, 255, 61, 0.25)';
+              (e.currentTarget.style as any).WebkitTextFillColor = '#0a0a0a';
+              e.currentTarget.style.boxShadow = 'inset 0 0 0 1px rgba(255, 255, 255, 0.10), 0 0 30px rgba(198, 255, 61, 0.25)';
+              e.currentTarget.style.transform = 'translateY(0px)';
             }}
             data-cursor-hover="true"
           >
@@ -213,25 +219,17 @@ export const RegisterCtaSection: React.FC = () => {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '0.65rem',
-            padding: '0.45rem 1rem',
-            borderRadius: '9999px',
+            padding: '0.45rem 1.1rem',
+            borderRadius: '999px',
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
             border: '1px solid rgba(255, 255, 255, 0.09)',
+            boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.06)',
             fontFamily: 'var(--font-mono)',
             fontSize: '0.75rem',
             letterSpacing: '0.15em',
             color: 'var(--muted)',
           }}
         >
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              backgroundColor: '#ffffff',
-            }}
-          />
           {siteContent.cta.deadline}
         </div>
       </div>

@@ -53,7 +53,7 @@ export const AboutSection: React.FC = () => {
       {/* Section Header */}
       <div style={{ maxWidth: '850px', marginBottom: '3.5rem' }}>
         <p
-          className="about-reveal"
+          className="about-reveal mono-eyebrow"
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '0.8125rem',
@@ -67,12 +67,13 @@ export const AboutSection: React.FC = () => {
         </p>
 
         <h2
-          className="about-reveal"
+          className="about-reveal section-heading"
           style={{
             fontSize: 'clamp(2.2rem, 5vw, 4.2rem)',
             fontWeight: 700,
             letterSpacing: '-0.03em',
-            lineHeight: 1.05,
+            lineHeight: 1,
+            textWrap: 'balance',
             color: '#f2f2f2',
             marginBottom: '1.5rem',
             display: 'flex',

@@ -76,7 +76,7 @@ export const TracksSection: React.FC = () => {
       {/* Section Header */}
       <div style={{ maxWidth: '750px', marginBottom: '3.5rem' }}>
         <p
-          className="track-header-reveal"
+          className="track-header-reveal mono-eyebrow"
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '0.8125rem',
@@ -90,12 +90,13 @@ export const TracksSection: React.FC = () => {
         </p>
 
         <h2
-          className="track-header-reveal"
+          className="track-header-reveal section-heading"
           style={{
             fontSize: 'clamp(2.2rem, 5vw, 4.2rem)',
             fontWeight: 700,
             letterSpacing: '-0.03em',
-            lineHeight: 1.05,
+            lineHeight: 1,
+            textWrap: 'balance',
             color: '#f2f2f2',
             marginBottom: '1rem',
             display: 'flex',
@@ -178,15 +179,6 @@ export const TracksSection: React.FC = () => {
                 >
                   {track.id}
                 </span>
-
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                  }}
-                />
               </div>
 
               {/* Title */}

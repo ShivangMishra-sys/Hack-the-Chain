@@ -49,13 +49,14 @@ export const DashboardHero: React.FC = () => {
     >
       {/* Eyebrow Label */}
       <p
+        className="mono-eyebrow"
         style={{
           fontFamily: 'var(--font-mono)',
           fontSize: '0.75rem',
           letterSpacing: '0.25em',
           color: 'var(--muted)',
           textTransform: 'uppercase',
-          marginBottom: '1.75rem',
+          marginBottom: '1.5rem',
         }}
       >
         CHAIN SEVERED // PROTOCOL ACTIVE
@@ -63,12 +64,14 @@ export const DashboardHero: React.FC = () => {
 
       {/* Main Headline */}
       <h1
+        className="section-heading"
         style={{
           fontFamily: 'var(--font-heading)',
           fontSize: 'clamp(2.75rem, 6.8vw, 6.2rem)',
           fontWeight: 700,
-          letterSpacing: '-0.04em',
+          letterSpacing: '-0.03em',
           lineHeight: 1.0,
+          textWrap: 'balance',
           color: '#f2f2f2',
           maxWidth: '18ch',
           marginBottom: '2rem',
@@ -165,20 +168,23 @@ export const DashboardHero: React.FC = () => {
         ))}
       </div>
 
-      {/* Register CTA Button */}
+      {/* Register CTA Button (Phase S4 Spec) */}
       <div style={{ marginTop: '2.5rem' }}>
         <a
           href="#register"
-          className="dashboard-hero-btn"
+          className="dashboard-hero-btn pill-btn"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: '44px',
-            padding: '0.8rem 2.25rem',
-            borderRadius: '9999px',
+            height: '40px',
+            minHeight: '40px',
+            maxHeight: '40px',
+            padding: '0 2rem',
+            borderRadius: '999px',
             backgroundColor: 'var(--accent)',
             color: '#0a0a0a',
+            WebkitTextFillColor: '#0a0a0a',
             fontFamily: 'var(--font-mono)',
             fontSize: '0.8125rem',
             fontWeight: 700,
@@ -186,8 +192,8 @@ export const DashboardHero: React.FC = () => {
             textTransform: 'uppercase',
             textDecoration: 'none',
             cursor: 'pointer',
-            boxShadow: '0 0 24px rgba(198, 255, 61, 0.25)',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.10), 0 0 24px rgba(198, 255, 61, 0.25)',
+            transition: 'transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 0.61, 0.36, 1)',
           }}
         >
           Register Now

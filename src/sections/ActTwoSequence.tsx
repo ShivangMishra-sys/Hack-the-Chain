@@ -377,19 +377,22 @@ export const ActTwoSequence: React.FC = () => {
               ))}
             </div>
 
-            {/* Register pill button */}
+            {/* Register pill button (Phase S4 Spec) */}
             <a
               href="#register"
-              className="act-register-btn"
+              className="act-register-btn pill-btn"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                minHeight: '44px',
-                padding: '0.75rem 2.25rem',
-                borderRadius: '9999px',
+                height: '40px',
+                minHeight: '40px',
+                maxHeight: '40px',
+                padding: '0 2rem',
+                borderRadius: '999px',
                 backgroundColor: 'var(--accent)',
                 color: '#0a0a0a',
+                WebkitTextFillColor: '#0a0a0a',
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.8125rem',
                 fontWeight: 700,
@@ -397,8 +400,8 @@ export const ActTwoSequence: React.FC = () => {
                 textTransform: 'uppercase',
                 textDecoration: 'none',
                 cursor: 'pointer',
-                boxShadow: '0 0 24px rgba(198, 255, 61, 0.25)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.10), 0 0 24px rgba(198, 255, 61, 0.25)',
+                transition: 'transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 0.61, 0.36, 1)',
               }}
             >
               {siteContent.actSequence.panel3.cta}

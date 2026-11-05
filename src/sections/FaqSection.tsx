@@ -80,7 +80,7 @@ export const FaqSection: React.FC = () => {
       {/* Header */}
       <div style={{ maxWidth: '750px', marginBottom: '4rem' }}>
         <p
-          className="faq-header-reveal"
+          className="faq-header-reveal mono-eyebrow"
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '0.8125rem',
@@ -94,12 +94,13 @@ export const FaqSection: React.FC = () => {
         </p>
 
         <h2
-          className="faq-header-reveal"
+          className="faq-header-reveal section-heading"
           style={{
             fontSize: 'clamp(2.2rem, 5vw, 4.2rem)',
             fontWeight: 700,
             letterSpacing: '-0.03em',
-            lineHeight: 1.05,
+            lineHeight: 1,
+            textWrap: 'balance',
             color: '#f2f2f2',
             marginBottom: '1rem',
             display: 'flex',

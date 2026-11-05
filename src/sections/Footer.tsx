@@ -43,15 +43,6 @@ export const Footer: React.FC = () => {
             >
               <span
                 style={{
-                  display: 'inline-block',
-                  width: 8,
-                  height: 8,
-                  backgroundColor: '#f2f2f2',
-                  borderRadius: '50%',
-                }}
-              />
-              <span
-                style={{
                   fontFamily: 'var(--font-heading)',
                   fontSize: '1.25rem',
                   fontWeight: 700,

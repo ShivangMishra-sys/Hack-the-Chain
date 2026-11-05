@@ -34,7 +34,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header
-      className="dashboard-nav"
+      className="dashboard-nav header-veil"
       style={{
         position: 'fixed',
         top: 0,
@@ -43,17 +43,16 @@ export const Navbar: React.FC = () => {
         zIndex: 50,
         transform: isHidden ? 'translateY(-100%)' : 'translateY(0%)',
         transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
-        backgroundColor: 'rgba(10, 10, 10, 0.75)',
+        background: 'linear-gradient(to bottom, rgba(10, 10, 10, 0.94) 0%, rgba(10, 10, 10, 0.82) 65%, rgba(10, 10, 10, 0) 100%)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
       }}
     >
       <div
         style={{
           maxWidth: '1440px',
           margin: '0 auto',
-          padding: '1.1rem clamp(1.5rem, 4vw, 3rem)',
+          padding: '1rem clamp(1.25rem, 4vw, 3rem) 1.25rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -83,6 +82,7 @@ export const Navbar: React.FC = () => {
             {siteContent.meta.title}
           </span>
           <span
+            className="nav-wordmark-sub"
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.6875rem',
@@ -134,10 +134,10 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Register CTA Button with Accent */}
+        {/* Register CTA Button with Accent (Phase S4 Pill Spec) */}
         <a
           href="#register"
-          className="nav-register-btn"
+          className="nav-register-btn pill-btn"
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '0.75rem',
@@ -146,19 +146,31 @@ export const Navbar: React.FC = () => {
             textTransform: 'uppercase',
             textDecoration: 'none',
             color: 'var(--accent)',
-            padding: '0.6rem 1.4rem',
+            WebkitTextFillColor: 'var(--accent)',
+            height: '40px',
+            minHeight: '40px',
+            maxHeight: '40px',
+            padding: '0 1.5rem',
             border: '1px solid var(--accent)',
-            borderRadius: '9999px',
+            borderRadius: '999px',
             backgroundColor: 'transparent',
-            transition: 'all 0.25s ease',
+            boxShadow: 'inset 0 0 0 1px rgba(255, 255, 255, 0.10)',
+            transition: 'transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), background-color 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), color 0.4s cubic-bezier(0.22, 0.61, 0.36, 1)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = 'var(--accent)';
             e.currentTarget.style.color = '#0a0a0a';
+            (e.currentTarget.style as any).WebkitTextFillColor = '#0a0a0a';
+            e.currentTarget.style.transform = 'translateY(-2px)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.backgroundColor = 'transparent';
             e.currentTarget.style.color = 'var(--accent)';
+            (e.currentTarget.style as any).WebkitTextFillColor = 'var(--accent)';
+            e.currentTarget.style.transform = 'translateY(0px)';
           }}
           data-cursor-hover="true"
         >

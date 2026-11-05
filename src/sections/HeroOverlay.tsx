@@ -118,9 +118,41 @@ export const HeroOverlay: React.FC<HeroOverlayProps> = ({ isReady }) => {
         boxSizing: 'border-box',
       }}
     >
+      {/* Top Gradient Veil behind fixed header */}
+      <div
+        className="header-veil"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '140px',
+          background: 'linear-gradient(to bottom, rgba(10, 10, 10, 0.94) 0%, rgba(10, 10, 10, 0) 100%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      {/* Bottom Gradient Veil behind fixed footer text & CTA */}
+      <div
+        className="footer-veil"
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '160px',
+          background: 'linear-gradient(to top, rgba(10, 10, 10, 0.94) 0%, rgba(10, 10, 10, 0) 100%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
       {/* Top Header Bar */}
       <header
         style={{
+          position: 'relative',
+          zIndex: 1,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
