@@ -23,6 +23,35 @@ export const App: React.FC = () => {
     useAppStore.getState().setScrollEased(0);
   }, []);
 
+  // Phase S8: Apply misregistration jitter once when each heading scrolls into view
+  React.useEffect(() => {
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const seen = new WeakSet<Element>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !seen.has(entry.target)) {
+            seen.add(entry.target);
+            entry.target.classList.add('misregistration-active');
+            setTimeout(() => {
+              entry.target.classList.remove('misregistration-active');
+            }, 450);
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+
+    const headings = document.querySelectorAll('h1, h2');
+    headings.forEach((h) => observer.observe(h));
+
+    return () => observer.disconnect();
+  }, [phase]);
+
   return (
     <>
       {/* 1. Custom cursor outside shake wrapper */}
@@ -39,9 +68,10 @@ export const App: React.FC = () => {
         {/* Persistent 3D Canvas */}
         <CanvasContainer />
 
-        {/* Film grain and vignette overlays */}
+        {/* Film grain, vignette, and faint halftone dot overlays */}
         <div className="grain-overlay" aria-hidden="true" />
         <div className="vignette-overlay" aria-hidden="true" />
+        <div className="halftone-overlay" aria-hidden="true" />
 
         {/* Blockchain hex flank streams */}
         <BlockchainTexture />

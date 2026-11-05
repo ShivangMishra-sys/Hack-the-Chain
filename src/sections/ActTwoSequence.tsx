@@ -47,10 +47,23 @@ export const ActTwoSequence: React.FC = () => {
   const panel1Ref = useRef<HTMLDivElement>(null);
   const panel2Ref = useRef<HTMLDivElement>(null);
   const panel3Ref = useRef<HTMLDivElement>(null);
+  const comicWipeRef = useRef<HTMLDivElement>(null);
+  const wasInDz1Ref = useRef(false);
+  const wasInDz2Ref = useRef(false);
 
   // Live countdown state
   const [targetDate] = useState(() => new Date('2026-10-24T18:00:00'));
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => calculateTimeLeft(targetDate));
+
+  useEffect(() => {
+    const el = comicWipeRef.current;
+    if (!el) return;
+    const onAnimEnd = () => {
+      el.classList.remove('comic-wipe-active');
+    };
+    el.addEventListener('animationend', onAnimEnd);
+    return () => el.removeEventListener('animationend', onAnimEnd);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -117,6 +130,20 @@ export const ActTwoSequence: React.FC = () => {
         panel3Ref.current.style.pointerEvents = s3.pointerEvents;
       }
 
+      // 3. Comic panel wipe during dead zones (Phase S8)
+      const inDz1 = p >= 0.32 && p <= 0.38;
+      const inDz2 = p >= 0.68 && p <= 0.74;
+
+      if ((inDz1 && !wasInDz1Ref.current) || (inDz2 && !wasInDz2Ref.current)) {
+        if (comicWipeRef.current && !prefersReduced) {
+          comicWipeRef.current.classList.remove('comic-wipe-active');
+          void comicWipeRef.current.offsetWidth;
+          comicWipeRef.current.classList.add('comic-wipe-active');
+        }
+      }
+      wasInDz1Ref.current = inDz1;
+      wasInDz2Ref.current = inDz2;
+
       rafId = requestAnimationFrame(tick);
     };
 
@@ -147,6 +174,7 @@ export const ActTwoSequence: React.FC = () => {
           width: '100vw',
           height: '100vh',
           zIndex: 25,
+          overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -158,6 +186,13 @@ export const ActTwoSequence: React.FC = () => {
           willChange: 'opacity',
         }}
       >
+        {/* Phase S8: Comic Panel Wipe across dead zones */}
+        <div
+          ref={comicWipeRef}
+          className="comic-panel-wipe"
+          aria-hidden="true"
+        />
+
         <div
           style={{
             position: 'relative',
@@ -302,6 +337,7 @@ export const ActTwoSequence: React.FC = () => {
               {siteContent.actSequence.panel3.eyebrow}
             </p>
             <h1
+              className="act-title"
               style={{
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'clamp(26px, 5.2vw, 56px)',

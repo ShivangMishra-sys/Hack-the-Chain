@@ -31,6 +31,9 @@ interface AppState {
   // Reforge finale progress (0 = floating debris, 1 = reassembled chain behind CTA)
   reforgeProgress: number;
   setReforgeProgress: (v: number) => void;
+  // Phase R3: Final heading scramble persistence
+  hasCtaHeadingScrambled: boolean;
+  setHasCtaHeadingScrambled: (v: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -58,6 +61,8 @@ export const useAppStore = create<AppState>((set) => ({
   setScrollEased: (scrollEased) => set({ scrollEased }),
   reforgeProgress: 0,
   setReforgeProgress: (reforgeProgress) => set({ reforgeProgress }),
+  hasCtaHeadingScrambled: false,
+  setHasCtaHeadingScrambled: (hasCtaHeadingScrambled) => set({ hasCtaHeadingScrambled }),
 }));
 
 export { useEasedProgress } from '../hooks/useEasedProgress';

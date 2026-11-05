@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useAppStore } from '../store/useAppStore';
 
 const HEX_CHARS = '0123456789abcdefx';
+
+// Module-level set of keys that have already scrambled once across remounts & re-renders
+const globalScrambledKeys = new Set<string>();
 
 interface ScrambleTextProps {
   text: string;
@@ -10,6 +14,8 @@ interface ScrambleTextProps {
   duration?: number;
   triggerOnHover?: boolean;
   triggerOnScroll?: boolean;
+  scrambleOnce?: boolean;
+  persistKey?: string;
 }
 
 export const ScrambleText: React.FC<ScrambleTextProps> = ({
@@ -20,12 +26,23 @@ export const ScrambleText: React.FC<ScrambleTextProps> = ({
   duration = 600,
   triggerOnHover = true,
   triggerOnScroll = true,
+  scrambleOnce = false,
+  persistKey,
 }) => {
+  const isPersistedInStore = persistKey === 'final-cta-heading' && useAppStore.getState().hasCtaHeadingScrambled;
+  const isAlreadyScrambled = Boolean(
+    persistKey && (globalScrambledKeys.has(persistKey) || isPersistedInStore)
+  );
+
   const [displayText, setDisplayText] = useState(text);
   const isAnimatingRef = useRef(false);
   const rafIdRef = useRef<number | null>(null);
   const elementRef = useRef<HTMLElement | null>(null);
-  const hasRevealedRef = useRef(false);
+  const hasRevealedRef = useRef(isAlreadyScrambled);
+
+  if (isAlreadyScrambled) {
+    hasRevealedRef.current = true;
+  }
 
   const startScramble = useCallback(() => {
     // Accessibility check: prefers-reduced-motion skips scramble entirely
@@ -35,6 +52,18 @@ export const ScrambleText: React.FC<ScrambleTextProps> = ({
     ) {
       setDisplayText(text);
       return;
+    }
+
+    // Never replay if scrambleOnce is enabled and it has already revealed
+    if (scrambleOnce && hasRevealedRef.current && displayText === text && !isAnimatingRef.current) {
+      return;
+    }
+
+    if (persistKey) {
+      globalScrambledKeys.add(persistKey);
+      if (persistKey === 'final-cta-heading') {
+        useAppStore.getState().setHasCtaHeadingScrambled(true);
+      }
     }
 
     if (rafIdRef.current !== null) {
@@ -83,11 +112,12 @@ export const ScrambleText: React.FC<ScrambleTextProps> = ({
     };
 
     rafIdRef.current = requestAnimationFrame(tick);
-  }, [text, duration]);
+  }, [text, duration, scrambleOnce, persistKey, displayText]);
 
   // Handle scroll reveal via IntersectionObserver
   useEffect(() => {
     if (!triggerOnScroll) return;
+    if (scrambleOnce && hasRevealedRef.current) return;
 
     const el = elementRef.current;
     if (!el) return;
@@ -97,6 +127,12 @@ export const ScrambleText: React.FC<ScrambleTextProps> = ({
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasRevealedRef.current) {
             hasRevealedRef.current = true;
+            if (persistKey) {
+              globalScrambledKeys.add(persistKey);
+              if (persistKey === 'final-cta-heading') {
+                useAppStore.getState().setHasCtaHeadingScrambled(true);
+              }
+            }
             startScramble();
           }
         });
@@ -109,11 +145,13 @@ export const ScrambleText: React.FC<ScrambleTextProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [triggerOnScroll, startScramble]);
+  }, [triggerOnScroll, startScramble, scrambleOnce, persistKey]);
 
   // Reset text and cancel RAF on unmount or text prop update
   useEffect(() => {
-    setDisplayText(text);
+    if (!isAnimatingRef.current) {
+      setDisplayText(text);
+    }
     return () => {
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
@@ -133,7 +171,7 @@ export const ScrambleText: React.FC<ScrambleTextProps> = ({
       className={`scramble-text ${className}`.trim()}
       style={{ display: 'inline-block', ...style }}
       aria-label={text}
-      onMouseEnter={handleMouseEnter}
+      {...(triggerOnHover ? { onMouseEnter: handleMouseEnter } : {})}
     >
       <span aria-hidden="true">{displayText}</span>
     </Component>

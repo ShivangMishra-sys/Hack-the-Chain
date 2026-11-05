@@ -94,6 +94,28 @@ code, kbd, samp, .mono {
   background: radial-gradient(circle at center, transparent 40%, rgba(10, 10, 10, 0.7) 100%);
 }
 
+/* ── Phase S8: Fixed Halftone Dot Layer (Faint, strongest at corners via radial mask) ── */
+.halftone-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9997;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.9) 1.2px, transparent 1.2px);
+  background-size: 8px 8px;
+  mask-image: radial-gradient(ellipse at center, transparent 30%, black 100%);
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 30%, black 100%);
+}
+
+@media (max-width: 768px) {
+  .halftone-overlay {
+    display: none !important;
+  }
+}
+
 /* Blockchain Background Stream */
 .blockchain-texture-container {
   mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
@@ -559,6 +581,72 @@ button:focus-visible,
 @media (max-width: 768px) {
   .act-title {
     font-size: clamp(30px, 9.8vw, 52px) !important;
+  }
+}
+
+/* ── Phase S8: Typographic Misregistration Text Jitter ── */
+@keyframes misregistrationJitter {
+  0% {
+    text-shadow: -2.5px 0.5px 0 var(--accent), 2.5px -0.5px 0 rgba(242, 242, 242, 0.55);
+  }
+  20% {
+    text-shadow: 2.5px -1px 0 var(--accent), -2.5px 1px 0 rgba(242, 242, 242, 0.55);
+  }
+  40% {
+    text-shadow: -3px -0.5px 0 var(--accent), 3px 0.5px 0 rgba(242, 242, 242, 0.55);
+  }
+  60% {
+    text-shadow: 2px 1px 0 var(--accent), -2px -1px 0 rgba(242, 242, 242, 0.55);
+  }
+  80% {
+    text-shadow: -1.5px 0px 0 var(--accent), 1.5px 0px 0 rgba(242, 242, 242, 0.55);
+  }
+  100% {
+    text-shadow: -1.2px 0 0 rgba(198, 255, 61, 0.4), 1.2px 0 0 rgba(242, 242, 242, 0.4);
+  }
+}
+
+h1:hover, h2:hover, .section-heading:hover .scramble-text, .scramble-text:hover, .misregistration-active {
+  animation: misregistrationJitter 0.4s steps(5, end) forwards;
+}
+
+/* ── Phase S8: Comic Panel Wipe (Act 2 Dead Zones) ── */
+@keyframes comicPanelWipe {
+  0% {
+    clip-path: polygon(0 0, 0 0, -35% 100%, -35% 100%);
+    opacity: 0.92;
+  }
+  50% {
+    clip-path: polygon(0 0, 135% 0, 100% 100%, -35% 100%);
+    opacity: 0.92;
+  }
+  100% {
+    clip-path: polygon(135% 0, 135% 0, 100% 100%, 100% 100%);
+    opacity: 0;
+  }
+}
+
+.comic-panel-wipe {
+  position: absolute;
+  inset: 0;
+  background-color: #161616;
+  pointer-events: none;
+  z-index: 40;
+  opacity: 0;
+}
+
+.comic-wipe-active {
+  animation: comicPanelWipe 0.25s steps(4, end) forwards !important;
+}
+
+/* Reduced Motion Override for Phase S8 */
+@media (prefers-reduced-motion: reduce) {
+  h1:hover, h2:hover, .section-heading:hover .scramble-text, .scramble-text:hover, .misregistration-active {
+    animation: none !important;
+    text-shadow: none !important;
+  }
+  .comic-wipe-active, .comic-panel-wipe {
+    display: none !important;
   }
 }
 

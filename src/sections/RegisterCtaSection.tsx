@@ -121,6 +121,7 @@ export const RegisterCtaSection: React.FC = () => {
 
         <h2
           className="cta-reveal section-heading"
+          aria-label={`07 ${siteContent.cta.heading}`}
           style={{
             fontSize: 'clamp(2.5rem, 7vw, 6.2rem)',
             fontWeight: 700,
@@ -151,7 +152,13 @@ export const RegisterCtaSection: React.FC = () => {
           >
             07
           </span>
-          <ScrambleText text={siteContent.cta.heading} />
+          <ScrambleText
+            text={siteContent.cta.heading}
+            triggerOnHover={false}
+            triggerOnScroll={true}
+            scrambleOnce={true}
+            persistKey="final-cta-heading"
+          />
         </h2>
 
         <p
